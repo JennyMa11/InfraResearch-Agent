@@ -1,0 +1,162 @@
+[
+  {
+    "id": "q01",
+    "question": "Prefix caching 的作用是什么？",
+    "reference_answer": "复用相同提示前缀的 KV cache block，减少重复 prefill，不改变模型输出。",
+    "required_evidence": ["prefix caching", "KV cache", "不改变输出"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q02",
+    "question": "为什么 prefix caching 不会改变采样结果？",
+    "reference_answer": "它只复用确定性的前缀 KV 计算，后续采样算法和模型权重没有变化。",
+    "required_evidence": ["确定性", "采样"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q03",
+    "question": "KV cache usage 指标表示什么？",
+    "reference_answer": "表示可用 KV block 中当前已占用部分的比例。",
+    "required_evidence": ["KV block", "比例"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q04",
+    "question": "TTFT 应该如何测量？",
+    "reference_answer": "从请求开始计时，到流式响应收到首个 token 为止。",
+    "required_evidence": ["首个 token", "请求开始"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q05",
+    "question": "为什么 Naive RAG 与 Agentic RAG 要使用相同索引？",
+    "reference_answer": "相同索引、Embedding 和生成模型可以控制变量，保证对比公平。",
+    "required_evidence": ["控制变量", "公平"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q06",
+    "question": "Agentic RAG 在证据不足时做什么？",
+    "reference_answer": "重写查询并重新检索，最多重试两次。",
+    "required_evidence": ["重写查询", "两次"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q07",
+    "question": "引用验证失败时系统如何处理？",
+    "reference_answer": "最多修复一次；仍不可靠时移除无效引用并明确标注证据不足。",
+    "required_evidence": ["修复一次", "证据不足"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q08",
+    "question": "PDF 证据使用什么稳定定位符？",
+    "reference_answer": "PDF 证据定位到原文件名和页码。",
+    "required_evidence": ["页码"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q09",
+    "question": "代码证据如何定位？",
+    "reference_answer": "代码证据包含仓库、commit SHA、路径和起止行号。",
+    "required_evidence": ["commit SHA", "行号"],
+    "expected_sources": ["code"],
+    "expected_tools": ["code_keyword_search"]
+  },
+  {
+    "id": "q10",
+    "question": "GitHub Issue 检索没有 Token 会怎样？",
+    "reference_answer": "仍可索引仓库代码，但 Issue API 可能触发较低的速率限制并给出提示。",
+    "required_evidence": ["速率限制", "代码"],
+    "expected_sources": ["issues"],
+    "expected_tools": ["github_issue_search"]
+  },
+  {
+    "id": "q11",
+    "question": "为什么仓库要固定到 commit SHA？",
+    "reference_answer": "固定 commit 使代码证据和评测结果可重现，避免分支移动导致定位失效。",
+    "required_evidence": ["可重现", "分支移动"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q12",
+    "question": "默认本地模型是什么？",
+    "reference_answer": "默认模型是 Qwen/Qwen3-1.7B，通过 OpenAI-compatible API 调用。",
+    "required_evidence": ["Qwen/Qwen3-1.7B", "OpenAI-compatible"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q13",
+    "question": "GPU 不可用时如何降级？",
+    "reference_answer": "可以切换 Ollama 或其他兼容端点；离线演示使用确定性抽取 provider。",
+    "required_evidence": ["抽取", "兼容端点"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q14",
+    "question": "为什么单个工具失败不能丢失已有证据？",
+    "reference_answer": "工具相互独立，失败会进入轨迹，但已获得的证据应继续用于生成透明的部分答案。",
+    "required_evidence": ["轨迹", "已有证据"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q15",
+    "question": "SSE 流的结束事件有哪些？",
+    "reference_answer": "成功发送 run_completed，失败发送 run_failed。",
+    "required_evidence": ["run_completed", "run_failed"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q16",
+    "question": "哪些文件不应该被仓库索引？",
+    "reference_answer": "忽略 .git、构建目录、二进制、模型权重和秘密文件。",
+    "required_evidence": ["模型权重", "秘密文件"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q17",
+    "question": "Evidence Grader 评价哪些维度？",
+    "reference_answer": "评价相关性、问题覆盖度和来源多样性。",
+    "required_evidence": ["相关性", "覆盖度", "来源多样性"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q18",
+    "question": "为什么 MCP 推迟到 v0.2.0？",
+    "reference_answer": "首版先稳定 Retriever 和 Tool 接口并保持原型最小，后续再封装 MCP。",
+    "required_evidence": ["接口", "原型最小"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q19",
+    "question": "Qdrant Local 的迁移优势是什么？",
+    "reference_answer": "它与 Qdrant 服务端使用相同客户端 API，后续迁移无需改业务检索接口。",
+    "required_evidence": ["相同客户端 API", "迁移"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q20",
+    "question": "为什么不承诺 Agentic RAG 一定优于 Naive RAG？",
+    "reference_answer": "效果依赖问题和语料；目标是提供可复现、可解释的真实对比而非预设结论。",
+    "required_evidence": ["可复现", "预设结论"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"]
+  }
+]
