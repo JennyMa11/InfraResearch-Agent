@@ -1,5 +1,7 @@
 .PHONY: install dev backend frontend test check build evaluate preflight
 
+export UV_CACHE_DIR ?= /tmp/infraresearch-uv-cache
+
 install:
 	uv sync --project backend --extra dev
 	npm --prefix frontend install

@@ -10,7 +10,11 @@ node --version || status=1
 git --version || status=1
 
 if command -v nvidia-smi >/dev/null 2>&1; then
-  nvidia-smi --query-gpu=name,memory.total,memory.free,driver_version --format=csv,noheader
+  if gpu_info="$(nvidia-smi --query-gpu=name,memory.total,memory.free,driver_version --format=csv,noheader 2>&1)"; then
+    echo "$gpu_info"
+  else
+    echo "GPU: blocked or unavailable ($gpu_info)"
+  fi
 else
   echo "GPU: N/A (基础离线 provider 仍可运行)"
 fi
