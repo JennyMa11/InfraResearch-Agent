@@ -1,6 +1,8 @@
+import json
 import subprocess
 from pathlib import Path
 
+import httpx
 import pytest
 from sqlalchemy import select
 
@@ -84,3 +86,36 @@ def test_github_ingestion_uses_fixed_sha(session, tmp_path, monkeypatch) -> None
     assert source.revision == "abc123"
     assert chunk is not None
     assert chunk.locator.startswith("owner/repo@abc123/")
+
+
+def test_github_issue_api_creates_url_locator(session, tmp_path, monkeypatch) -> None:
+    settings = Settings(data_dir=tmp_path / "data", vector_backend="sqlite")
+    service = IngestionService(settings, VectorIndex(settings))
+    request = httpx.Request("GET", "https://api.github.com/repos/owner/repo/issues")
+    response = httpx.Response(
+        200,
+        request=request,
+        json=[
+            {
+                "number": 42,
+                "title": "Cache blocks not released",
+                "body": "KV cache remains allocated.",
+                "html_url": "https://github.com/owner/repo/issues/42",
+            },
+            {
+                "number": 43,
+                "title": "A pull request",
+                "body": "",
+                "html_url": "https://github.com/owner/repo/pull/43",
+                "pull_request": {},
+            },
+        ],
+    )
+    monkeypatch.setattr("infraresearch.ingestion.httpx.get", lambda *args, **kwargs: response)
+    count = service._ingest_issues(session, "owner", "repo", "abc123")
+    session.commit()
+    issue_source = session.scalar(select(Source).where(Source.kind == "issue"))
+    chunk = session.scalar(select(Chunk).where(Chunk.source_id == issue_source.id))
+    assert count == 1
+    assert json.loads(chunk.metadata_json)["number"] == 42
+    assert chunk.locator.endswith("https://github.com/owner/repo/issues/42")
