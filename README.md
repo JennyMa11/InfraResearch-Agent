@@ -22,11 +22,14 @@ make dev
 打开 <http://localhost:5173>。后端 API 和交互文档分别位于
 <http://localhost:8000/api/v1/health> 与 <http://localhost:8000/docs>。
 
-也可以只运行后端：
+也可以分别运行 API 与 worker：
 
 ```bash
 uv sync --project backend --extra dev
-uv run --project backend uvicorn infraresearch.main:app --reload
+# 终端 1
+make backend
+# 终端 2
+make worker
 ```
 
 默认会在 `data/` 保存 SQLite、Qdrant Local 和仓库副本。没有可用的
@@ -50,8 +53,16 @@ make worker        # 单独启动持久任务 worker（make dev 已包含）
 RTX 3060 Laptop / WSL 环境可使用 `make setup-vllm` 创建独立持久环境，然后运行
 `make start-vllm`。预下载模型路径通过 `INFRARESEARCH_VLLM_MODEL_PATH` 指定。
 
-详细资料见 [docs/quickstart.md](docs/quickstart.md) 和
-[docs/architecture.md](docs/architecture.md)。
+详细资料：
+
+- [快速开始](docs/quickstart.md)
+- [用户手册](docs/user-guide.md)
+- [开发指南](docs/development.md)
+- [架构与数据流](docs/architecture.md)
+- [API](docs/api.md)
+- [配置](docs/configuration.md)
+- [测试](docs/testing.md)
+- [故障排查](docs/troubleshooting.md)
 
 ## 项目结构
 

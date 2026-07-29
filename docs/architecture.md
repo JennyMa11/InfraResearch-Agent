@@ -23,14 +23,15 @@ flowchart LR
 
 SQLite 是任务、证据、引用和轨迹的事实来源。Qdrant 只保存 chunk ID、source ID 和
 向量，因此可以安全地从 SQLite 重建。Qdrant 不可用时检索器切换为 SQLite 词法
-检索，并在健康检查和运行指标中显示 `sqlite_lexical`。
+检索，并在完成运行的指标中显示 `sqlite_lexical`。健康接口用于显示 API 配置；
+实际执行路径以运行指标为准。
 
-来源删除采用软删除：Qdrant point 会立即删除，所有检索路径只读取 completed
-来源，原始上传/仓库副本会清理；SQLite 中的来源和 chunk 快照继续保留，使既有
-研究报告的证据抽屉仍可打开。
+来源删除采用软删除：API 会立即把来源排除在检索之外并创建
+`source_cleanup` job，worker 随后删除 Qdrant point；原始上传/仓库副本会清理。
+SQLite 中的来源和 chunk 快照继续保留，使既有研究报告的证据抽屉仍可打开。
 
 Agent 状态包含问题、计划、检索轮次、证据、预算、答案和验证结果。每个节点边界
-都会先持久化事件再继续，以便失败后仍能查看部分轨迹。v0.1.0 是单 Agent；
+都会先持久化事件再继续，以便失败后仍能查看部分轨迹。v0.1.x 是单 Agent；
 Retriever/Provider 接口是未来 MCP 和多 Agent 扩展边界。
 
 API 不执行后台任务，只在同一事务中创建业务资源和 `jobs` 记录。独立 worker

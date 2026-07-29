@@ -45,7 +45,7 @@ Playwright、独立 API/worker 的真实 HTTP 全流程和 20 题双基线评测
 
 API 阶段覆盖 OpenAPI 契约、404/415/422 错误、Markdown 与代码上传、异步导入、
 数据源元数据、Naive/Agentic/闲聊三条路径、检索工具、证据和引用、SSE 顺序及
-聚合指标。
+聚合指标。测试组织与新增任务类型的最低覆盖要求见[开发指南](development.md)。
 
 GPU/vLLM 和真实 GitHub 属于环境相关阶段，需要对应服务或网络：
 

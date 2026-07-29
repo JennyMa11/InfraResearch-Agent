@@ -27,4 +27,5 @@
 
 `GITHUB_TOKEN` 不带 InfraResearch 前缀，用于公开 Issue REST API。不要提交真实
 `.env`。修改 Embedding 后端、模型、维度或 chunk 配置会强制重建本地向量
-collection。`GET /api/v1/health` 中的 `embedding_backend` 表示实际启用的后端。
+collection。`GET /api/v1/health` 显示 API 读取到的配置；worker 是否发生词法或
+extractive 降级，应以完成运行的 `metrics.vector_backend/provider` 为准。

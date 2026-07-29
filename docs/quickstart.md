@@ -13,8 +13,8 @@ Qdrant Local 会下载 `multilingual-e5-small` ONNX 模型到
 chunk 参数变化时会重建 collection。
 
 完全离线且尚未缓存模型时，可在 `.env` 设置
-`INFRARESEARCH_EMBEDDING_BACKEND=hash`。健康接口会暴露实际 embedding 后端，
-避免把哈希回退误认为语义模型。
+`INFRARESEARCH_EMBEDDING_BACKEND=hash`。健康接口显示配置值；完成研究后应通过
+`metrics.vector_backend` 和来源 metadata 确认 worker 的实际执行路径。
 
 ## 2. 启动
 
@@ -34,6 +34,7 @@ make worker
 ```
 
 API 只持久化任务；未启动 worker 时任务会保持 pending，并在 worker 启动后继续。
+开发模块导航、任务状态机和提交要求见[开发指南](development.md)。
 
 ## 3. 可选模型服务
 
