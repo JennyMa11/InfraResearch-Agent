@@ -5,11 +5,13 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from statistics import mean
 
+from infraresearch import __version__
 from infraresearch.agent import ResearchAgent, latency_percentile
 from infraresearch.chunking import chunk_markdown
 from infraresearch.config import Settings
@@ -22,25 +24,27 @@ from sqlalchemy.orm import Session
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def seed_corpus(session: Session, path: Path) -> None:
+def seed_corpus(session: Session, path: Path) -> list[Chunk]:
     source = Source(kind="file", name=path.name, uri=str(path), status=Status.COMPLETED)
     session.add(source)
     session.flush()
+    chunks = []
     for parsed in chunk_markdown(path.read_text(), path.name, size=1000, overlap=100):
-        session.add(
-            Chunk(
-                source_id=source.id,
-                content=parsed.content,
-                locator=parsed.locator,
-                path=parsed.path,
-                start_line=parsed.start_line,
-                end_line=parsed.end_line,
-                heading=parsed.heading,
-                metadata_json=json.dumps({"category": "docs"}),
-                content_hash=hashlib.sha256(parsed.content.encode()).hexdigest(),
-            )
+        chunk = Chunk(
+            source_id=source.id,
+            content=parsed.content,
+            locator=parsed.locator,
+            path=parsed.path,
+            start_line=parsed.start_line,
+            end_line=parsed.end_line,
+            heading=parsed.heading,
+            metadata_json=json.dumps({"category": "docs"}),
+            content_hash=hashlib.sha256(parsed.content.encode()).hexdigest(),
         )
+        session.add(chunk)
+        chunks.append(chunk)
     session.commit()
+    return chunks
 
 
 def overlap_score(reference: str, answer: str) -> float:
@@ -51,7 +55,8 @@ def overlap_score(reference: str, answer: str) -> float:
 
 def evaluate_mode(session: Session, agent: ResearchAgent, questions: list[dict], mode: str) -> list[dict]:
     rows = []
-    for item in questions:
+    for number, item in enumerate(questions, start=1):
+        print(f"[evaluate] {mode}: {number}/{len(questions)} {item['id']}", flush=True)
         run = ResearchRun(question=item["question"], mode=mode)
         session.add(run)
         session.commit()
@@ -111,10 +116,12 @@ def markdown(summary: dict, generated_at: str) -> str:
     lines = [
         "# InfraResearch 双基线评测",
         "",
-        "- 版本：`v0.1.0`",
+        f"- 版本：`v{__version__}`",
         "- 数据集：20 题",
         f"- 运行时间：{generated_at}",
-        "- Provider：确定性离线 extractive provider",
+        f"- Provider：`{summary['provider']}`",
+        f"- 向量后端：`{summary['vector_backend']}`",
+        f"- Embedding：`{summary['embedding_backend']}`",
         "",
         "| 模式 | 正确性 | 引用精确率 | 引用召回率 | Recall@K | 工具准确率 | 平均步数 | P50 ms | P95 ms | 平均 Tokens |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
@@ -128,10 +135,14 @@ def markdown(summary: dict, generated_at: str) -> str:
             f"{item['average_steps']:.2f} | {item['p50_latency_ms']:.1f} | "
             f"{item['p95_latency_ms']:.1f} | {item['average_tokens']:.1f} |"
         )
+    run_kind = "真实模型" if summary["provider"] == "live" else "离线"
     lines.extend(
         [
             "",
-            "> 本报告如实记录内置语料上的离线结果，不预设 Agentic RAG 必然优于 Naive RAG。",
+            (
+                f"> 本报告如实记录内置语料上的{run_kind}结果，"
+                "不预设 Agentic RAG 必然优于 Naive RAG。"
+            ),
             "",
         ]
     )
@@ -143,30 +154,50 @@ def main() -> None:
     parser.add_argument("--dataset", type=Path, default=ROOT / "evals/questions.json")
     parser.add_argument("--corpus", type=Path, default=ROOT / "evals/corpus.md")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "evals/results")
+    parser.add_argument("--provider", choices=("extractive", "live"), default="extractive")
+    parser.add_argument("--vector-backend", choices=("sqlite", "qdrant"), default="sqlite")
+    parser.add_argument("--embedding-backend", choices=("hash", "fastembed"), default="hash")
+    parser.add_argument(
+        "--llm-base-url",
+        default=os.getenv("INFRARESEARCH_LLM_BASE_URL", "http://127.0.0.1:8001/v1"),
+    )
+    parser.add_argument(
+        "--llm-model",
+        default=os.getenv("INFRARESEARCH_LLM_MODEL", "Qwen/Qwen3-0.6B"),
+    )
     args = parser.parse_args()
     questions = json.loads(args.dataset.read_text())
     if len(questions) != 20:
-        raise SystemExit("v0.1.0 evaluator requires exactly 20 questions")
+        raise SystemExit("the evaluator requires exactly 20 questions")
     args.output_dir.mkdir(parents=True, exist_ok=True)
     generated_at = datetime.now(UTC).isoformat()
     with tempfile.TemporaryDirectory(prefix="infraresearch-eval-") as directory:
         settings = Settings(
             data_dir=Path(directory),
             database_url="sqlite://",
-            vector_backend="sqlite",
-            llm_base_url="http://127.0.0.1:1/v1",
-            llm_timeout_seconds=0.05,
+            vector_backend=args.vector_backend,
+            embedding_backend=args.embedding_backend,
+            llm_base_url=(
+                args.llm_base_url if args.provider == "live" else "http://127.0.0.1:1/v1"
+            ),
+            llm_model=args.llm_model,
+            llm_timeout_seconds=300 if args.provider == "live" else 0.05,
         )
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         with Session(engine) as session:
-            seed_corpus(session, args.corpus)
-            agent = ResearchAgent(settings, VectorIndex(settings), LLMProvider(settings))
+            chunks = seed_corpus(session, args.corpus)
+            index = VectorIndex(settings)
+            index.upsert(chunks)
+            agent = ResearchAgent(settings, index, LLMProvider(settings))
             rows = evaluate_mode(session, agent, questions, "naive")
             rows += evaluate_mode(session, agent, questions, "agentic")
             summary = {
                 "generated_at": generated_at,
                 "dataset": str(args.dataset),
+                "provider": args.provider,
+                "vector_backend": index.backend,
+                "embedding_backend": index.embedding_backend,
                 "naive": summarize([row for row in rows if row["mode"] == "naive"]),
                 "agentic": summarize([row for row in rows if row["mode"] == "agentic"]),
             }

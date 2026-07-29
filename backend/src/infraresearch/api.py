@@ -2,34 +2,34 @@ from __future__ import annotations
 
 import asyncio
 import json
-from collections.abc import Callable
-from functools import lru_cache
+import shutil
+from math import ceil
 from pathlib import Path
-from threading import Lock, Thread
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from .agent import ResearchAgent, latency_percentile
+from . import __version__
+from .agent import latency_percentile
 from .chunking import is_indexable
-from .config import Settings, get_settings
+from .config import get_settings
 from .database import SessionLocal, get_db
-from .ingestion import IngestionService, parse_github_url
+from .ingestion import parse_github_url
 from .models import (
     CitationRecord,
     EvidenceRecord,
     Ingestion,
+    Job,
     ResearchRun,
     Source,
     Status,
     ToolCall,
     TraceEvent,
+    utcnow,
 )
-from .provider import LLMProvider
-from .retrieval import VectorIndex
 from .schemas import (
     Citation,
     Evidence,
@@ -39,70 +39,27 @@ from .schemas import (
     ResearchPlan,
     ResearchRequest,
     ResearchRunOut,
+    ResearchRunPage,
+    ResearchRunSummary,
     RunMetrics,
     SourceOut,
+    SourcePage,
     ToolCallOut,
     TraceEventOut,
 )
+from .task_queue import enqueue_job, request_cancellation
 
 router = APIRouter(prefix="/api/v1")
-running_threads: set[Thread] = set()
-_thread_lock = Lock()
 
 
-def _start_worker(target: Callable[..., None], *args: Any) -> None:
-    def runner() -> None:
-        try:
-            target(*args)
-        finally:
-            with _thread_lock:
-                running_threads.discard(thread)
-
-    thread = Thread(target=runner, daemon=True)
-    with _thread_lock:
-        running_threads.add(thread)
-    thread.start()
+def _source_metadata(source: Source) -> dict[str, Any]:
+    try:
+        return json.loads(source.metadata_json)
+    except (TypeError, ValueError):
+        return {}
 
 
-@lru_cache
-def _services() -> tuple[Settings, VectorIndex, IngestionService, ResearchAgent]:
-    settings = get_settings()
-    index = VectorIndex(settings)
-    return (
-        settings,
-        index,
-        IngestionService(settings, index),
-        ResearchAgent(settings, index, LLMProvider(settings)),
-    )
-
-
-def _run_file_ingestion(source_id: str, ingestion_id: str, path: str) -> None:
-    _, _, service, _ = _services()
-    with SessionLocal() as session:
-        service.ingest_file(session, source_id, ingestion_id, Path(path))
-
-
-def _run_github_ingestion(
-    source_id: str, ingestion_id: str, revision: str | None, include_issues: bool
-) -> None:
-    _, _, service, _ = _services()
-    with SessionLocal() as session:
-        service.ingest_github(
-            session,
-            source_id,
-            ingestion_id,
-            revision=revision,
-            include_issues=include_issues,
-        )
-
-
-def _run_research(run_id: str, top_k: int) -> None:
-    _, _, _, agent = _services()
-    with SessionLocal() as session:
-        agent.execute(session, run_id, top_k=top_k)
-
-
-def _source_out(source: Source) -> SourceOut:
+def _source_out(source: Source, active_ingestion_id: str | None = None) -> SourceOut:
     return SourceOut(
         id=source.id,
         kind=source.kind,
@@ -111,7 +68,8 @@ def _source_out(source: Source) -> SourceOut:
         status=source.status,
         revision=source.revision,
         error=source.error,
-        metadata=json.loads(source.metadata_json),
+        metadata=_source_metadata(source),
+        active_ingestion_id=active_ingestion_id,
         created_at=source.created_at,
     )
 
@@ -131,11 +89,16 @@ def _ingestion_out(item: Ingestion) -> IngestionOut:
 
 @router.get("/health")
 async def health() -> dict[str, str]:
-    settings, index, _, _ = _services()
+    settings = get_settings()
     return {
         "status": "ok",
-        "version": "0.1.0",
-        "vector_backend": index.backend,
+        "version": __version__,
+        "vector_backend": (
+            "qdrant_local" if settings.vector_backend == "qdrant" else "sqlite_lexical"
+        ),
+        "embedding_backend": (
+            settings.embedding_backend if settings.vector_backend == "qdrant" else "none"
+        ),
         "embedding_model": settings.embedding_model,
     }
 
@@ -178,8 +141,8 @@ async def upload_file(
                 raise HTTPException(status_code=413, detail=source.error)
             handle.write(chunk)
     source.uri = str(destination)
+    enqueue_job(session, "ingestion", ingestion.id)
     session.commit()
-    _start_worker(_run_file_ingestion, source.id, ingestion.id, str(destination))
     return _ingestion_out(ingestion)
 
 
@@ -193,27 +156,163 @@ async def add_github_source(
     session: Annotated[Session, Depends(get_db)],
 ) -> IngestionOut:
     url = str(payload.url).rstrip("/")
-    owner, repo = parse_github_url(url)
-    source = Source(kind="github", name=f"{owner}/{repo}", uri=url, revision=payload.revision)
+    try:
+        owner, repo = parse_github_url(url)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    source = Source(
+        kind="github",
+        name=f"{owner}/{repo}",
+        uri=url,
+        revision=payload.revision,
+        metadata_json=json.dumps(
+            {
+                "include_issues": payload.include_issues,
+                "requested_revision": payload.revision,
+            }
+        ),
+    )
     session.add(source)
     session.flush()
     ingestion = Ingestion(source_id=source.id)
     session.add(ingestion)
+    session.flush()
+    enqueue_job(session, "ingestion", ingestion.id)
     session.commit()
-    _start_worker(
-        _run_github_ingestion,
-        source.id,
-        ingestion.id,
-        payload.revision,
-        payload.include_issues,
-    )
     return _ingestion_out(ingestion)
 
 
-@router.get("/sources", response_model=list[SourceOut])
-async def list_sources(session: Annotated[Session, Depends(get_db)]) -> list[SourceOut]:
-    sources = session.scalars(select(Source).order_by(Source.created_at.desc())).all()
-    return [_source_out(source) for source in sources]
+@router.get("/sources", response_model=SourcePage)
+async def list_sources(
+    session: Annotated[Session, Depends(get_db)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20,
+    query: Annotated[str | None, Query(alias="q", max_length=200)] = None,
+    status_filter: Annotated[str | None, Query(alias="status")] = None,
+    kind: Annotated[str | None, Query()] = None,
+) -> SourcePage:
+    filters = [Source.status != Status.DELETED]
+    if query:
+        pattern = f"%{query.strip()}%"
+        filters.append(Source.name.ilike(pattern) | Source.uri.ilike(pattern))
+    if status_filter:
+        filters.append(Source.status == status_filter)
+    if kind:
+        filters.append(Source.kind == kind)
+    total = session.scalar(select(func.count(Source.id)).where(*filters)) or 0
+    sources = session.scalars(
+        select(Source)
+        .where(*filters)
+        .order_by(Source.created_at.desc(), Source.id.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    ).all()
+    source_ids = [source.id for source in sources]
+    active = {}
+    if source_ids:
+        active = {
+            source_id: ingestion_id
+            for source_id, ingestion_id in session.execute(
+                select(Ingestion.source_id, Ingestion.id).where(
+                    Ingestion.source_id.in_(source_ids),
+                    Ingestion.status.in_(
+                        [Status.PENDING, Status.RUNNING, Status.CANCEL_REQUESTED]
+                    ),
+                )
+            )
+        }
+    return SourcePage(
+        items=[_source_out(source, active.get(source.id)) for source in sources],
+        page=page,
+        page_size=page_size,
+        total=total,
+        pages=ceil(total / page_size) if total else 0,
+    )
+
+
+def _active_ingestion(session: Session, source_id: str) -> Ingestion | None:
+    return session.scalar(
+        select(Ingestion).where(
+            Ingestion.source_id == source_id,
+            Ingestion.status.in_(
+                [Status.PENDING, Status.RUNNING, Status.CANCEL_REQUESTED]
+            ),
+        )
+    )
+
+
+@router.post(
+    "/sources/{source_id}/reindex",
+    response_model=IngestionOut,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def reindex_source(
+    source_id: str, session: Annotated[Session, Depends(get_db)]
+) -> IngestionOut:
+    source = session.get(Source, source_id)
+    if not source or source.status == Status.DELETED:
+        raise HTTPException(status_code=404, detail="source not found")
+    if source.kind not in {"file", "github"}:
+        raise HTTPException(status_code=409, detail="this source is managed by its repository")
+    if _active_ingestion(session, source.id):
+        raise HTTPException(status_code=409, detail="source ingestion is already active")
+    if source.kind == "file" and not Path(source.uri).is_file():
+        raise HTTPException(status_code=409, detail="uploaded source file is no longer available")
+
+    source.status = Status.PENDING
+    source.error = None
+    ingestion = Ingestion(source_id=source.id)
+    session.add(ingestion)
+    session.flush()
+    enqueue_job(session, "ingestion", ingestion.id)
+    session.commit()
+    return _ingestion_out(ingestion)
+
+
+def _remove_managed_directory(path: Path, root: Path) -> None:
+    resolved = path.resolve()
+    managed_root = root.resolve()
+    if resolved != managed_root and managed_root in resolved.parents and resolved.exists():
+        shutil.rmtree(resolved)
+
+
+@router.delete("/sources/{source_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_source(
+    source_id: str, session: Annotated[Session, Depends(get_db)]
+) -> Response:
+    settings = get_settings()
+    source = session.get(Source, source_id)
+    if not source or source.status == Status.DELETED:
+        raise HTTPException(status_code=404, detail="source not found")
+    if _active_ingestion(session, source.id):
+        raise HTTPException(
+            status_code=409,
+            detail="cannot delete a source while ingestion is active",
+        )
+
+    targets = [source]
+    if source.kind == "github":
+        targets.extend(
+            item
+            for item in session.scalars(select(Source).where(Source.kind == "issue")).all()
+            if _source_metadata(item).get("parent_repository") == source.name
+        )
+    for item in targets:
+        item.status = Status.DELETED
+        item.error = None
+    enqueue_job(
+        session,
+        "source_cleanup",
+        source.id,
+        {"source_ids": [item.id for item in targets]},
+    )
+
+    if source.kind == "file":
+        _remove_managed_directory(Path(source.uri).parent, settings.data_dir / "uploads")
+    elif source.kind == "github":
+        _remove_managed_directory(settings.repos_path / source.id, settings.repos_path)
+    session.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/ingestions/{ingestion_id}", response_model=IngestionOut)
@@ -223,6 +322,36 @@ async def get_ingestion(
     ingestion = session.get(Ingestion, ingestion_id)
     if not ingestion:
         raise HTTPException(status_code=404, detail="ingestion not found")
+    return _ingestion_out(ingestion)
+
+
+def _job_for_target(session: Session, target_id: str) -> Job | None:
+    return session.scalar(select(Job).where(Job.target_id == target_id))
+
+
+@router.post("/ingestions/{ingestion_id}/cancel", response_model=IngestionOut)
+async def cancel_ingestion(
+    ingestion_id: str,
+    session: Annotated[Session, Depends(get_db)],
+) -> IngestionOut:
+    ingestion = session.get(Ingestion, ingestion_id)
+    if not ingestion:
+        raise HTTPException(status_code=404, detail="ingestion not found")
+    if ingestion.status == Status.CANCELLED:
+        return _ingestion_out(ingestion)
+    if ingestion.status not in {Status.PENDING, Status.RUNNING, Status.CANCEL_REQUESTED}:
+        raise HTTPException(status_code=409, detail="ingestion is no longer active")
+    job = _job_for_target(session, ingestion.id)
+    if not job:
+        raise HTTPException(status_code=409, detail="ingestion job not found")
+    job_status = request_cancellation(session, job)
+    ingestion.status = job_status
+    source = session.get(Source, ingestion.source_id)
+    if source and source.status != Status.DELETED:
+        source.status = job_status
+    if job_status == Status.CANCELLED:
+        ingestion.completed_at = utcnow()
+    session.commit()
     return _ingestion_out(ingestion)
 
 
@@ -237,8 +366,9 @@ async def create_research(
 ) -> ResearchRunOut:
     run = ResearchRun(question=payload.question, mode=payload.mode)
     session.add(run)
+    session.flush()
+    enqueue_job(session, "research", run.id, {"top_k": payload.top_k})
     session.commit()
-    _start_worker(_run_research, run.id, payload.top_k)
     return _run_out(session, run)
 
 
@@ -311,6 +441,108 @@ def _run_out(session: Session, run: ResearchRun) -> ResearchRunOut:
     )
 
 
+@router.get("/research", response_model=ResearchRunPage)
+async def list_research(
+    session: Annotated[Session, Depends(get_db)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20,
+    query: Annotated[str | None, Query(alias="q", max_length=200)] = None,
+    status_filter: Annotated[str | None, Query(alias="status")] = None,
+    mode: Annotated[str | None, Query()] = None,
+) -> ResearchRunPage:
+    filters = []
+    if query:
+        filters.append(ResearchRun.question.ilike(f"%{query.strip()}%"))
+    if status_filter:
+        filters.append(ResearchRun.status == status_filter)
+    if mode:
+        filters.append(ResearchRun.mode == mode)
+    total = session.scalar(select(func.count(ResearchRun.id)).where(*filters)) or 0
+    runs = session.scalars(
+        select(ResearchRun)
+        .where(*filters)
+        .order_by(ResearchRun.created_at.desc(), ResearchRun.id.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    ).all()
+    return ResearchRunPage(
+        items=[
+            ResearchRunSummary(
+                id=run.id,
+                question=run.question,
+                mode=run.mode,
+                status=run.status,
+                provider=RunMetrics.model_validate_json(run.metrics_json).provider,
+                created_at=run.created_at,
+                completed_at=run.completed_at,
+            )
+            for run in runs
+        ],
+        page=page,
+        page_size=page_size,
+        total=total,
+        pages=ceil(total / page_size) if total else 0,
+    )
+
+
+@router.post(
+    "/research/{run_id}/retry",
+    response_model=ResearchRunOut,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def retry_research(
+    run_id: str, session: Annotated[Session, Depends(get_db)]
+) -> ResearchRunOut:
+    previous = session.get(ResearchRun, run_id)
+    if not previous:
+        raise HTTPException(status_code=404, detail="research run not found")
+    if previous.status in {Status.PENDING, Status.RUNNING, Status.CANCEL_REQUESTED}:
+        raise HTTPException(status_code=409, detail="research run is still active")
+    run = ResearchRun(question=previous.question, mode=previous.mode)
+    session.add(run)
+    session.flush()
+    enqueue_job(session, "research", run.id, {"top_k": 6})
+    session.commit()
+    return _run_out(session, run)
+
+
+@router.post("/research/{run_id}/cancel", response_model=ResearchRunOut)
+async def cancel_research(
+    run_id: str,
+    session: Annotated[Session, Depends(get_db)],
+) -> ResearchRunOut:
+    run = session.get(ResearchRun, run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="research run not found")
+    if run.status == Status.CANCELLED:
+        return _run_out(session, run)
+    if run.status not in {Status.PENDING, Status.RUNNING, Status.CANCEL_REQUESTED}:
+        raise HTTPException(status_code=409, detail="research run is no longer active")
+    job = _job_for_target(session, run.id)
+    if not job:
+        raise HTTPException(status_code=409, detail="research job not found")
+    job_status = request_cancellation(session, job)
+    run.status = job_status
+    if job_status == Status.CANCELLED:
+        run.completed_at = utcnow()
+        sequence = (
+            session.scalar(
+                select(func.max(TraceEvent.sequence)).where(TraceEvent.run_id == run.id)
+            )
+            or 0
+        )
+        session.add(
+            TraceEvent(
+                run_id=run.id,
+                sequence=sequence + 1,
+                event_type="run_cancelled",
+                data_json="{}",
+            )
+        )
+    session.commit()
+    return _run_out(session, run)
+
+
 @router.get("/research/{run_id}", response_model=ResearchRunOut)
 async def get_research(
     run_id: str, session: Annotated[Session, Depends(get_db)]
@@ -352,7 +584,11 @@ async def research_events(run_id: str) -> StreamingResponse:
                         f"id: {item.sequence}\nevent: {item.event_type}\n"
                         f"data: {serialized}\n\n"
                     )
-                if run and run.status in {Status.COMPLETED, Status.FAILED} and not events:
+                if run and run.status in {
+                    Status.COMPLETED,
+                    Status.FAILED,
+                    Status.CANCELLED,
+                } and not events:
                     break
             idle_ticks = 0 if events else idle_ticks + 1
             if not events:

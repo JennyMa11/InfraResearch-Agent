@@ -9,7 +9,37 @@ export interface Source {
   revision: string | null;
   error: string | null;
   metadata: Record<string, unknown>;
+  active_ingestion_id?: string | null;
   created_at: string;
+}
+
+export interface Page<T> {
+  items: T[];
+  page: number;
+  page_size: number;
+  total: number;
+  pages: number;
+}
+
+export interface Ingestion {
+  id: string;
+  source_id: string;
+  status: string;
+  chunks_indexed: number;
+  files_seen: number;
+  error: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface ResearchRunSummary {
+  id: string;
+  question: string;
+  mode: RunMode;
+  status: string;
+  provider: string;
+  created_at: string;
+  completed_at: string | null;
 }
 
 export interface Evidence {

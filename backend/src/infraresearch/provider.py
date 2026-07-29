@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -8,7 +9,18 @@ from dataclasses import dataclass
 import httpx
 
 from .config import Settings
+from .errors import TaskCancelled
 from .schemas import Evidence, ResearchPlan, SubQuestion
+
+THINK_BLOCK_RE = re.compile(r"<think>.*?</think>\s*", re.IGNORECASE | re.DOTALL)
+UNFINISHED_THINK_RE = re.compile(r"<think>.*$", re.IGNORECASE | re.DOTALL)
+
+
+def strip_reasoning(text: str) -> str:
+    """Remove model-private reasoning blocks from user-visible output."""
+    cleaned = THINK_BLOCK_RE.sub("", text)
+    cleaned = UNFINISHED_THINK_RE.sub("", cleaned)
+    return cleaned.strip()
 
 
 @dataclass(slots=True)
@@ -49,14 +61,19 @@ class LLMProvider:
         question: str,
         evidence: list[Evidence],
         on_token: Callable[[str], None] | None = None,
+        cancel_check: Callable[[], None] | None = None,
     ) -> Generation:
+        if cancel_check:
+            cancel_check()
         if evidence:
-            remote = self._remote_generate(question, evidence, on_token)
+            remote = self._remote_generate(question, evidence, on_token, cancel_check)
             if remote is not None:
                 return remote
         result = self._extractive_generate(question, evidence)
         if on_token:
             for index in range(0, len(result.text), 120):
+                if cancel_check:
+                    cancel_check()
                 on_token(result.text[index : index + 120])
         return result
 
@@ -65,6 +82,7 @@ class LLMProvider:
         question: str,
         evidence: list[Evidence],
         on_token: Callable[[str], None] | None,
+        cancel_check: Callable[[], None] | None,
     ) -> Generation | None:
         sources = "\n\n".join(
             f"[{item.id}] locator={item.locator}\n{item.content[:2400]}" for item in evidence
@@ -72,7 +90,8 @@ class LLMProvider:
         system = (
             "You are InfraResearch. Answer only from the registered evidence. "
             "Write a concise Markdown technical report. Cite every factual paragraph "
-            "with the exact evidence marker such as [S1]. Never invent markers or locators."
+            "with the exact evidence marker such as [S1]. Never invent markers or locators. "
+            "Return only the final report; never expose chain-of-thought or <think> blocks."
         )
         payload = {
             "model": self.settings.llm_model,
@@ -84,6 +103,8 @@ class LLMProvider:
                 {"role": "user", "content": f"Question:\n{question}\n\nEvidence:\n{sources}"},
             ],
         }
+        if "qwen3" in self.settings.llm_model.lower():
+            payload["chat_template_kwargs"] = {"enable_thinking": False}
         started = time.perf_counter()
         try:
             chunks: list[str] = []
@@ -102,6 +123,8 @@ class LLMProvider:
                 ) as response:
                     response.raise_for_status()
                     for line in response.iter_lines():
+                        if cancel_check:
+                            cancel_check()
                         if not line.startswith("data:"):
                             continue
                         data = line.removeprefix("data:").strip()
@@ -115,11 +138,12 @@ class LLMProvider:
                             if ttft_ms is None:
                                 ttft_ms = (time.perf_counter() - started) * 1000
                             chunks.append(content)
-                            if on_token:
-                                on_token(content)
-            text = "".join(chunks)
+            text = strip_reasoning("".join(chunks))
             if not text:
                 return None
+            if on_token:
+                for index in range(0, len(text), 120):
+                    on_token(text[index : index + 120])
             return Generation(
                 text=text,
                 prompt_tokens=int(usage.get("prompt_tokens", len(sources.split()))),
@@ -127,6 +151,8 @@ class LLMProvider:
                 ttft_ms=ttft_ms,
                 provider="openai_compatible",
             )
+        except TaskCancelled:
+            raise
         except Exception:
             # Provider connectivity, proxy extras and malformed responses are all
             # recoverable in local-first mode. The run records the actual fallback.

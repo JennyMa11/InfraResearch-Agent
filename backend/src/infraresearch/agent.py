@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from statistics import median
 from typing import Any
@@ -11,6 +12,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .config import Settings
+from .errors import TaskCancelled
 from .metrics import fetch_vllm_metrics
 from .models import (
     CitationRecord,
@@ -56,7 +58,14 @@ class ResearchAgent:
         self.index = index
         self.provider = provider
 
-    def execute(self, session: Session, run_id: str, *, top_k: int = 6) -> None:
+    def execute(
+        self,
+        session: Session,
+        run_id: str,
+        *,
+        top_k: int = 6,
+        cancel_check: Callable[[], None] | None = None,
+    ) -> None:
         run = session.get(ResearchRun, run_id)
         if not run:
             return
@@ -65,8 +74,10 @@ class ResearchAgent:
         metrics = RunMetrics(vector_backend=self.index.backend)
         run.status = Status.RUNNING
         session.commit()
+        self._checkpoint(cancel_check)
         writer.emit("run_started", question=run.question, mode=run.mode)
         try:
+            self._checkpoint(cancel_check)
             self._node(writer, "router", "started")
             needs_retrieval = not self._is_chitchat(run.question)
             self._node(writer, "router", "completed", needs_retrieval=needs_retrieval)
@@ -94,6 +105,7 @@ class ResearchAgent:
                 )
                 max_rounds = 1 if run.mode == "naive" else self.settings.max_agent_rewrites + 1
                 for round_number in range(max_rounds):
+                    self._checkpoint(cancel_check)
                     metrics.retrieval_rounds += 1
                     writer.emit(
                         "node_started",
@@ -102,7 +114,14 @@ class ResearchAgent:
                         queries=queries,
                     )
                     round_hits = self._retrieve(
-                        session, run, queries, plan, top_k, writer, agentic=run.mode == "agentic"
+                        session,
+                        run,
+                        queries,
+                        plan,
+                        top_k,
+                        writer,
+                        agentic=run.mode == "agentic",
+                        cancel_check=cancel_check,
                     )
                     metrics.tool_calls += len(queries if run.mode == "naive" else queries)
                     for hit in round_hits:
@@ -137,14 +156,18 @@ class ResearchAgent:
                     run_id,
                     sorted(all_hits.values(), key=lambda item: item.score, reverse=True)[:top_k],
                     writer,
+                    cancel_check=cancel_check,
                 )
                 evidence = self._fit_token_budget(evidence)
+                self._checkpoint(cancel_check)
                 writer.emit("node_started", "generator", evidence_count=len(evidence))
                 generation = self.provider.generate(
                     run.question,
                     evidence,
                     on_token=lambda token: writer.emit("token", "generator", text=token),
+                    cancel_check=cancel_check,
                 )
+                self._checkpoint(cancel_check)
                 run.answer = generation.text
                 metrics.prompt_tokens = generation.prompt_tokens
                 metrics.completion_tokens = generation.completion_tokens
@@ -177,6 +200,14 @@ class ResearchAgent:
             run.completed_at = datetime.now(UTC)
             session.commit()
             writer.emit("run_completed", metrics=metrics.model_dump())
+        except TaskCancelled:
+            session.rollback()
+            run = session.get(ResearchRun, run_id)
+            if run:
+                metrics.total_latency_ms = (time.perf_counter() - started) * 1000
+                run.metrics_json = metrics.model_dump_json()
+                self.mark_cancelled(session, run)
+            raise
         except Exception as exc:
             session.rollback()
             run = session.get(ResearchRun, run_id)
@@ -189,6 +220,20 @@ class ResearchAgent:
                 session.commit()
                 writer = EventWriter(session, run_id)
                 writer.emit("run_failed", error=run.error)
+
+    @staticmethod
+    def _checkpoint(cancel_check: Callable[[], None] | None) -> None:
+        if cancel_check:
+            cancel_check()
+
+    @staticmethod
+    def mark_cancelled(session: Session, run: ResearchRun) -> None:
+        run.status = Status.CANCELLED
+        run.error = None
+        run.completed_at = datetime.now(UTC)
+        session.commit()
+        writer = EventWriter(session, run.id)
+        writer.emit("run_cancelled")
 
     @staticmethod
     def _node(writer: EventWriter, node: str, state: str, **data: Any) -> None:
@@ -209,9 +254,11 @@ class ResearchAgent:
         writer: EventWriter,
         *,
         agentic: bool,
+        cancel_check: Callable[[], None] | None = None,
     ) -> list[SearchHit]:
         hits: list[SearchHit] = []
         for index, query in enumerate(queries):
+            self._checkpoint(cancel_check)
             expected = (
                 plan.subquestions[min(index, len(plan.subquestions) - 1)].expected_evidence
                 if plan.subquestions
@@ -223,6 +270,7 @@ class ResearchAgent:
             if agentic and expected in {"issues", "mixed"}:
                 tool_names.append("github_issue_search")
             for tool_name in tool_names:
+                self._checkpoint(cancel_check)
                 started = time.perf_counter()
                 status, error = Status.COMPLETED, None
                 try:
@@ -286,13 +334,24 @@ class ResearchAgent:
         suffixes = ["documentation implementation configuration", "error behavior example source"]
         return f"{query} {suffixes[min(round_number - 1, len(suffixes) - 1)]}"
 
-    @staticmethod
     def _register_evidence(
-        session: Session, run_id: str, hits: list[SearchHit], writer: EventWriter
+        self,
+        session: Session,
+        run_id: str,
+        hits: list[SearchHit],
+        writer: EventWriter,
+        *,
+        cancel_check: Callable[[], None] | None = None,
     ) -> list[Evidence]:
         evidence: list[Evidence] = []
-        for index, hit in enumerate(hits, start=1):
-            evidence_id = f"S{index}"
+        seen_content: set[str] = set()
+        for hit in hits:
+            self._checkpoint(cancel_check)
+            content_key = hit.chunk.content_hash
+            if content_key in seen_content:
+                continue
+            seen_content.add(content_key)
+            evidence_id = f"S{len(evidence) + 1}"
             item = Evidence(
                 id=evidence_id,
                 chunk_id=hit.chunk.id,
@@ -341,7 +400,17 @@ class ResearchAgent:
         return fitted
 
     @staticmethod
+    def _citation_claim(answer: str, marker: str) -> str:
+        rendered = f"[{marker}]"
+        for line in answer.splitlines():
+            if rendered in line:
+                claim = line.replace(rendered, "").strip().lstrip("#-* ").strip()
+                if claim:
+                    return claim[:500]
+        return "Evidence reference"
+
     def _verify_citations(
+        self,
         session: Session,
         run: ResearchRun,
         evidence: list[Evidence],
@@ -351,24 +420,29 @@ class ResearchAgent:
         valid_ids = {item.id for item in evidence if item.locator}
         cited = CITATION_RE.findall(run.answer or "")
         invalid = sorted(set(cited) - valid_ids)
-        repaired = False
+        repaired = bool(invalid)
         if invalid:
             answer = run.answer or ""
             for marker in invalid:
                 answer = answer.replace(f"[{marker}]", "")
-            answer += "\n\n> 证据不足：已移除无法对应已登记证据的引用。"
             run.answer = answer
-            repaired = True
             cited = CITATION_RE.findall(answer)
         if evidence and not cited:
-            run.answer = (run.answer or "") + "\n\n> 证据不足：生成内容没有提供可验证的行内引用。"
+            fallback = self.provider._extractive_generate(run.question, evidence)
+            run.answer = (
+                fallback.text
+                + "\n\n> 引用修复：原生成内容没有提供有效行内引用，"
+                "已改用登记证据生成可验证结果。"
+            )
+            cited = CITATION_RE.findall(run.answer)
+            repaired = True
         for marker in dict.fromkeys(cited):
             session.add(
                 CitationRecord(
                     run_id=run.id,
                     evidence_id=marker,
                     marker=f"[{marker}]",
-                    claim="Referenced claim",
+                    claim=self._citation_claim(run.answer or "", marker),
                     valid=int(marker in valid_ids),
                 )
             )

@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import __version__
-from .api import router, running_threads
+from .api import router
 from .config import get_settings
 from .database import init_db
 
@@ -16,8 +16,6 @@ async def lifespan(_: FastAPI):
     get_settings().ensure_directories()
     init_db()
     yield
-    for thread in list(running_threads):
-        thread.join(timeout=2)
 
 
 app = FastAPI(

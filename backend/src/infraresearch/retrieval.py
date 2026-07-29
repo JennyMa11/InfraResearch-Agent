@@ -4,10 +4,12 @@ import hashlib
 import json
 import math
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any
+from threading import Lock
+from typing import Any, Protocol
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .config import Settings
@@ -32,12 +34,7 @@ def tokenize(text: str) -> list[str]:
 
 
 def hashed_embedding(text: str, dimensions: int) -> list[float]:
-    """Dependency-light deterministic embedding used by the local prototype.
-
-    The configured production embedding model is persisted as collection metadata.
-    This projection keeps tests and first-run demos offline; deployments can replace
-    this function behind the same VectorIndex interface.
-    """
+    """Dependency-light deterministic fallback embedding."""
 
     vector = [0.0] * dimensions
     for token in tokenize(text):
@@ -47,6 +44,88 @@ def hashed_embedding(text: str, dimensions: int) -> list[float]:
         vector[index] += sign
     norm = math.sqrt(sum(value * value for value in vector)) or 1
     return [value / norm for value in vector]
+
+
+class TextEncoder(Protocol):
+    name: str
+
+    def encode_passages(self, texts: Sequence[str]) -> list[list[float]]: ...
+
+    def encode_query(self, text: str) -> list[float]: ...
+
+
+class HashEncoder:
+    name = "hash"
+
+    def __init__(self, dimensions: int):
+        self.dimensions = dimensions
+
+    def encode_passages(self, texts: Sequence[str]) -> list[list[float]]:
+        return [hashed_embedding(text, self.dimensions) for text in texts]
+
+    def encode_query(self, text: str) -> list[float]:
+        return hashed_embedding(text, self.dimensions)
+
+
+class FastEmbedEncoder:
+    name = "fastembed"
+
+    def __init__(self, settings: Settings):
+        from fastembed import TextEmbedding
+
+        supported = {
+            str(item["model"])
+            for item in TextEmbedding.list_supported_models()
+            if "model" in item
+        }
+        if settings.embedding_model not in supported:
+            from fastembed.common.model_description import ModelSource, PoolingType
+
+            TextEmbedding.add_custom_model(
+                model=settings.embedding_model,
+                pooling=PoolingType.MEAN,
+                normalization=True,
+                sources=ModelSource(hf=settings.embedding_model),
+                dim=settings.embedding_dimensions,
+                model_file="onnx/model.onnx",
+            )
+        self.dimensions = settings.embedding_dimensions
+        self.model_name = settings.embedding_model
+        self.model = TextEmbedding(
+            model_name=settings.embedding_model,
+            cache_dir=str(settings.resolved_embedding_cache_dir),
+            local_files_only=settings.embedding_local_files_only,
+        )
+
+    def _encode(self, texts: Sequence[str], prefix: str) -> list[list[float]]:
+        prepared = [
+            text if text.lstrip().lower().startswith(f"{prefix}:") else f"{prefix}: {text}"
+            for text in texts
+        ]
+        vectors = [vector.tolist() for vector in self.model.embed(prepared)]
+        if any(len(vector) != self.dimensions for vector in vectors):
+            raise ValueError(
+                f"embedding model {self.model_name!r} did not produce "
+                f"{self.dimensions}-dimensional vectors"
+            )
+        return vectors
+
+    def encode_passages(self, texts: Sequence[str]) -> list[list[float]]:
+        return self._encode(texts, "passage")
+
+    def encode_query(self, text: str) -> list[float]:
+        return self._encode([text], "query")[0]
+
+
+def create_encoder(settings: Settings) -> TextEncoder:
+    if settings.embedding_backend == "hash":
+        return HashEncoder(settings.embedding_dimensions)
+    if settings.embedding_backend == "fastembed":
+        return FastEmbedEncoder(settings)
+    raise ValueError(
+        "INFRARESEARCH_EMBEDDING_BACKEND must be 'fastembed' or 'hash', "
+        f"got {settings.embedding_backend!r}"
+    )
 
 
 @dataclass(slots=True)
@@ -62,15 +141,21 @@ class VectorIndex:
     def __init__(self, settings: Settings):
         self.settings = settings
         self.backend = "sqlite_lexical"
+        self.embedding_backend = "none"
         self._client: Any = None
+        self._synchronized = False
+        self._sync_lock = Lock()
         if settings.vector_backend != "qdrant":
             return
         try:
             from qdrant_client import QdrantClient, models
 
+            self._encoder = create_encoder(settings)
+            self.embedding_backend = self._encoder.name
             self._models = models
             self._client = QdrantClient(path=str(settings.qdrant_path))
             fingerprint = {
+                "embedding_backend": self.embedding_backend,
                 "embedding_model": settings.embedding_model,
                 "embedding_dimensions": settings.embedding_dimensions,
                 "chunk_size": settings.chunk_size,
@@ -83,42 +168,101 @@ class VectorIndex:
             if previous != fingerprint and self._client.collection_exists(self.collection):
                 self._client.delete_collection(self.collection)
             if not self._client.collection_exists(self.collection):
-                self._client.create_collection(
-                    self.collection,
-                    vectors_config=models.VectorParams(
-                        size=settings.embedding_dimensions,
-                        distance=models.Distance.COSINE,
-                    ),
-                )
+                self._create_collection()
             metadata_path.write_text(json.dumps(fingerprint, indent=2))
             self.backend = "qdrant_local"
         except Exception:
             self._client = None
+            self.embedding_backend = "unavailable"
+
+    def _create_collection(self) -> None:
+        self._client.create_collection(
+            self.collection,
+            vectors_config=self._models.VectorParams(
+                size=self.settings.embedding_dimensions,
+                distance=self._models.Distance.COSINE,
+            ),
+        )
 
     def upsert(self, chunks: list[Chunk]) -> None:
         if not self._client or not chunks:
             return
+        vectors = self._encoder.encode_passages([chunk.content for chunk in chunks])
         points = [
             self._models.PointStruct(
                 id=int(hashlib.sha256(chunk.id.encode()).hexdigest()[:15], 16),
-                vector=hashed_embedding(chunk.content, self.settings.embedding_dimensions),
+                vector=vector,
                 payload={"chunk_id": chunk.id, "source_id": chunk.source_id},
             )
-            for chunk in chunks
+            for chunk, vector in zip(chunks, vectors, strict=True)
         ]
         self._client.upsert(collection_name=self.collection, points=points, wait=True)
+
+    def delete_source(self, source_id: str) -> None:
+        if not self._client:
+            return
+        self._client.delete(
+            collection_name=self.collection,
+            points_selector=self._models.FilterSelector(
+                filter=self._models.Filter(
+                    must=[
+                        self._models.FieldCondition(
+                            key="source_id",
+                            match=self._models.MatchValue(value=source_id),
+                        )
+                    ]
+                )
+            ),
+            wait=True,
+        )
+
+    def replace_source(self, source_id: str, chunks: list[Chunk]) -> None:
+        self.delete_source(source_id)
+        self.upsert(chunks)
+
+    def synchronize(self, session: Session) -> None:
+        """Rebuild Qdrant when its point count diverges from SQLite."""
+
+        if not self._client or self._synchronized:
+            return
+        with self._sync_lock:
+            if self._synchronized:
+                return
+            active_chunks = select(Chunk).join(Source).where(Source.status == "completed")
+            chunks = list(session.scalars(active_chunks).all())
+            sql_count = int(
+                session.scalar(
+                    select(func.count()).select_from(Chunk).join(Source).where(
+                        Source.status == "completed"
+                    )
+                )
+                or 0
+            )
+            vector_count = int(
+                self._client.count(collection_name=self.collection, exact=True).count
+            )
+            if vector_count != sql_count:
+                self._client.delete_collection(self.collection)
+                self._create_collection()
+                self.upsert(chunks)
+            self._synchronized = True
 
     def search(self, session: Session, query: str, top_k: int = 6) -> list[SearchHit]:
         if self._client:
             try:
+                self.synchronize(session)
                 result = self._client.query_points(
                     collection_name=self.collection,
-                    query=hashed_embedding(query, self.settings.embedding_dimensions),
+                    query=self._encoder.encode_query(query),
                     limit=top_k,
                     with_payload=True,
                 ).points
                 ids = [str(item.payload["chunk_id"]) for item in result]
-                chunks = session.scalars(select(Chunk).where(Chunk.id.in_(ids))).all()
+                chunks = session.scalars(
+                    select(Chunk)
+                    .join(Source)
+                    .where(Chunk.id.in_(ids), Source.status == "completed")
+                ).all()
                 by_id = {chunk.id: chunk for chunk in chunks}
                 hits = [
                     SearchHit(by_id[str(item.payload["chunk_id"])], float(item.score))
@@ -134,7 +278,9 @@ class VectorIndex:
     @staticmethod
     def _lexical_search(session: Session, query: str, top_k: int) -> list[SearchHit]:
         query_tokens = set(tokenize(query))
-        chunks = session.scalars(select(Chunk)).all()
+        chunks = session.scalars(
+            select(Chunk).join(Source).where(Source.status == "completed")
+        ).all()
         scored: list[SearchHit] = []
         for chunk in chunks:
             tokens = tokenize(chunk.content)
@@ -153,7 +299,9 @@ class VectorIndex:
         session: Session, query: str, top_k: int = 6, *, code_only: bool = True
     ) -> list[SearchHit]:
         query_tokens = set(tokenize(query))
-        candidates = session.scalars(select(Chunk)).all()
+        candidates = session.scalars(
+            select(Chunk).join(Source).where(Source.status == "completed")
+        ).all()
         hits: list[SearchHit] = []
         for chunk in candidates:
             metadata = json.loads(chunk.metadata_json)
@@ -169,7 +317,9 @@ class VectorIndex:
 
     @staticmethod
     def issue_search(session: Session, query: str, top_k: int = 6) -> list[SearchHit]:
-        issue_source_ids = session.scalars(select(Source.id).where(Source.kind == "issue")).all()
+        issue_source_ids = session.scalars(
+            select(Source.id).where(Source.kind == "issue", Source.status == "completed")
+        ).all()
         if not issue_source_ids:
             return []
         query_tokens = set(tokenize(query))

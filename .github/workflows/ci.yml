@@ -19,8 +19,6 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: uv sync --project backend --extra dev --locked
       - run: npm --prefix frontend ci
-      - run: INFRARESEARCH_VECTOR_BACKEND=sqlite uv run --project backend pytest backend/tests
-      - run: uv run --project backend ruff check backend scripts/evaluate.py
-      - run: npm --prefix frontend test -- --run
-      - run: npm --prefix frontend run build
-      - run: uv run --project backend python scripts/evaluate.py
+      - run: npx --prefix frontend playwright install --with-deps chromium
+      - run: bash -n scripts/*.sh
+      - run: make verify

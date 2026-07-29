@@ -25,8 +25,11 @@ class SourceType(StrEnum):
 class Status(StrEnum):
     PENDING = "pending"
     RUNNING = "running"
+    CANCEL_REQUESTED = "cancel_requested"
+    CANCELLED = "cancelled"
     COMPLETED = "completed"
     FAILED = "failed"
+    DELETED = "deleted"
 
 
 class Base(DeclarativeBase):
@@ -59,6 +62,23 @@ class Ingestion(Base):
     files_seen: Mapped[int] = mapped_column(Integer, default=0)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
+
+
+class Job(Base):
+    __tablename__ = "jobs"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True, default=lambda: new_id("job"))
+    kind: Mapped[str] = mapped_column(String(20), index=True)
+    target_id: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    payload_json: Mapped[str] = mapped_column(Text, default="{}")
+    status: Mapped[str] = mapped_column(String(20), default=Status.PENDING, index=True)
+    worker_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=utcnow, index=True)
+    claimed_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    heartbeat_at: Mapped[datetime | None] = mapped_column(nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
 

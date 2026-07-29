@@ -5,6 +5,11 @@
 - 提升 PDF 表格与代码符号分块。
 - 增加 OpenAPI 自动生成 TypeScript client。
 - 收集更多 GPU 评测配置并优化 Qwen prompt。
+- 增加软删除保留期限、垃圾回收和 SQLite 外键迁移。
+- 扩展 worker 多进程压力、强制终止和长时生成取消验收。
+
+已在 v0.1.1 完成：独立 SQLite 持久 worker、任务取消、来源/研究历史分页过滤与
+搜索、worker 租约恢复和旧任务接管。
 
 ## v0.2.0
 

@@ -15,6 +15,7 @@ class SourceOut(BaseModel):
     revision: str | None = None
     error: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+    active_ingestion_id: str | None = None
     created_at: datetime
 
 
@@ -117,6 +118,31 @@ class ResearchRunOut(BaseModel):
     tool_calls: list[ToolCallOut]
     created_at: datetime
     completed_at: datetime | None
+
+
+class ResearchRunSummary(BaseModel):
+    id: str
+    question: str
+    mode: str
+    status: str
+    provider: str
+    created_at: datetime
+    completed_at: datetime | None
+
+
+class PageMeta(BaseModel):
+    page: int
+    page_size: int
+    total: int
+    pages: int
+
+
+class SourcePage(PageMeta):
+    items: list[SourceOut]
+
+
+class ResearchRunPage(PageMeta):
+    items: list[ResearchRunSummary]
 
 
 class MetricsSummary(BaseModel):

@@ -16,7 +16,7 @@ Agentic RAG、本地技术文档与公开 GitHub 仓库/Issue 检索、OpenAI-co
 - 工作流：Router → Planner → Retriever → Evidence Grader → Generator →
   Citation Verifier。证据不足时最多重写两次，引用最多修复一次。
 - 基线：Naive RAG 与 Agentic RAG 使用同一批 chunk 和生成 provider。
-- 推理：默认 `Qwen/Qwen3-1.7B`，通过 OpenAI-compatible API 访问；未启动模型
+- 推理：默认 `Qwen/Qwen3-0.6B`，通过 OpenAI-compatible API 访问；未启动模型
   服务时使用确定性 extractive provider，保证演示和 CI 不依赖 GPU。
 - 界面：数据源、研究问题、计划、时间线、工具调用、证据引用和性能指标。
 - 评测：版本控制内包含 20 题数据集，并生成 JSON、CSV、Markdown 报告。
@@ -53,3 +53,10 @@ Agentic RAG、本地技术文档与公开 GitHub 仓库/Issue 检索、OpenAI-co
 
 v0.2.0+ 考虑 MCP Server、Reranker、知识图谱、多 Agent、Web Search、OCR、
 Speculative Decoding、认证和细粒度权限。
+
+## v0.1.1 工程收口
+
+- SQLite 持久任务队列与独立 worker 进程，使用原子 claim、心跳租约和安全重排。
+- 导入/研究任务 cooperative cancellation，并持久化 `cancel_requested/cancelled`。
+- 来源和研究历史分页、状态过滤与文本搜索。
+- worker 并发 claim、过期租约恢复、旧任务接管和任务幂等性阶段测试。

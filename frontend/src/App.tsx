@@ -5,38 +5,149 @@ import {
   EvidenceDrawer,
   Metrics,
   Report,
+  ResearchHistory,
   SourcesPanel,
   StatusPill,
   Timeline,
+  isVisibleTraceEvent,
 } from "./components";
-import type { Evidence, ResearchRun, RunMode, Source, TraceEvent } from "./types";
+import type {
+  Evidence,
+  ResearchRun,
+  ResearchRunSummary,
+  RunMode,
+  Source,
+  TraceEvent,
+} from "./types";
 
 const EXAMPLE = "vLLM 的 prefix caching 如何工作，它会不会改变模型输出？";
 
 export default function App() {
   const [sources, setSources] = useState<Source[]>([]);
+  const [sourceQuery, setSourceQuery] = useState("");
+  const [sourceStatus, setSourceStatus] = useState("");
+  const [sourcePage, setSourcePage] = useState(1);
+  const [sourcePages, setSourcePages] = useState(0);
+  const [sourceTotal, setSourceTotal] = useState(0);
   const [question, setQuestion] = useState(EXAMPLE);
   const [mode, setMode] = useState<RunMode>("agentic");
   const [run, setRun] = useState<ResearchRun | null>(null);
+  const [history, setHistory] = useState<ResearchRunSummary[]>([]);
+  const [historyQuery, setHistoryQuery] = useState("");
+  const [historyStatus, setHistoryStatus] = useState("");
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyPages, setHistoryPages] = useState(0);
+  const [historyTotal, setHistoryTotal] = useState(0);
   const [events, setEvents] = useState<TraceEvent[]>([]);
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
   const [githubUrl, setGithubUrl] = useState("");
   const [includeIssues, setIncludeIssues] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [activeSourceId, setActiveSourceId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const monitorCleanupRef = useRef<(() => void) | null>(null);
 
   const refreshSources = useCallback(async () => {
     try {
-      setSources(await api.listSources());
+      const result = await api.listSources({
+        page: sourcePage,
+        query: sourceQuery,
+        status: sourceStatus,
+      });
+      setSources(result.items);
+      setSourcePages(result.pages);
+      setSourceTotal(result.total);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "无法加载数据源");
     }
-  }, []);
+  }, [sourcePage, sourceQuery, sourceStatus]);
+
+  const refreshHistory = useCallback(async () => {
+    try {
+      const result = await api.listResearch({
+        page: historyPage,
+        query: historyQuery,
+        status: historyStatus,
+      });
+      setHistory(result.items);
+      setHistoryPages(result.pages);
+      setHistoryTotal(result.total);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "无法加载研究历史");
+    }
+  }, [historyPage, historyQuery, historyStatus]);
 
   useEffect(() => {
     void refreshSources();
-  }, [refreshSources]);
+    void refreshHistory();
+    return () => monitorCleanupRef.current?.();
+  }, [refreshHistory, refreshSources]);
+
+  const hasActiveSource = sources.some(
+    (source) =>
+      source.status === "pending" ||
+      source.status === "running" ||
+      source.status === "cancel_requested",
+  );
+
+  useEffect(() => {
+    if (!hasActiveSource) return;
+    const timer = window.setInterval(() => void refreshSources(), 1000);
+    return () => window.clearInterval(timer);
+  }, [hasActiveSource, refreshSources]);
+
+  const monitorRun = useCallback(
+    (id: string) => {
+      monitorCleanupRef.current?.();
+      let stopped = false;
+      let polling = false;
+      let unsubscribe: () => void = () => undefined;
+      const stop = () => {
+        if (stopped) return;
+        stopped = true;
+        unsubscribe();
+        window.clearInterval(timer);
+        monitorCleanupRef.current = null;
+      };
+      const poll = async () => {
+        if (stopped || polling) return;
+        polling = true;
+        try {
+          const latest = await api.getResearch(id);
+          setRun(latest);
+          setEvents(latest.events);
+          if (
+            latest.status === "completed" ||
+            latest.status === "failed" ||
+            latest.status === "cancelled"
+          ) {
+            stop();
+            setBusy(false);
+            await refreshHistory();
+          }
+        } catch (error) {
+          setMessage(error instanceof Error ? error.message : "无法读取运行结果");
+        } finally {
+          polling = false;
+        }
+      };
+      const timer = window.setInterval(() => void poll(), 800);
+      unsubscribe = api.subscribe(
+        id,
+        (trace) =>
+          setEvents((current) =>
+            current.some((item) => item.sequence === trace.sequence)
+              ? current
+              : [...current, trace],
+          ),
+        () => void poll(),
+      );
+      monitorCleanupRef.current = stop;
+      void poll();
+    },
+    [refreshHistory],
+  );
 
   async function upload(file: File) {
     setBusy(true);
@@ -45,7 +156,6 @@ export default function App() {
       await api.uploadFile(file);
       setMessage(`${file.name} 已进入索引队列`);
       await refreshSources();
-      window.setTimeout(() => void refreshSources(), 1200);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "上传失败");
     } finally {
@@ -71,6 +181,115 @@ export default function App() {
     }
   }
 
+  async function reindexSource(source: Source) {
+    setActiveSourceId(source.id);
+    setMessage(null);
+    try {
+      await api.reindexSource(source.id);
+      setMessage(`${source.name} 已进入重建队列`);
+      await refreshSources();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "重建失败");
+    } finally {
+      setActiveSourceId(null);
+    }
+  }
+
+  async function deleteSource(source: Source) {
+    if (!window.confirm(`删除数据源“${source.name}”？历史报告中的证据快照会保留。`)) {
+      return;
+    }
+    setActiveSourceId(source.id);
+    setMessage(null);
+    try {
+      await api.deleteSource(source.id);
+      setMessage(`${source.name} 已从检索索引删除`);
+      await refreshSources();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "删除失败");
+    } finally {
+      setActiveSourceId(null);
+    }
+  }
+
+  async function cancelSource(source: Source) {
+    if (!source.active_ingestion_id) return;
+    setActiveSourceId(source.id);
+    setMessage(null);
+    try {
+      await api.cancelIngestion(source.active_ingestion_id);
+      setMessage(`${source.name} 的导入取消请求已提交`);
+      await refreshSources();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "取消导入失败");
+    } finally {
+      setActiveSourceId(null);
+    }
+  }
+
+  async function openHistory(item: ResearchRunSummary) {
+    monitorCleanupRef.current?.();
+    setBusy(
+      item.status === "pending" ||
+        item.status === "running" ||
+        item.status === "cancel_requested",
+    );
+    setMessage(null);
+    try {
+      const selected = await api.getResearch(item.id);
+      setRun(selected);
+      setEvents(selected.events);
+      setQuestion(selected.question);
+      setMode(selected.mode);
+      if (
+        selected.status === "pending" ||
+        selected.status === "running" ||
+        selected.status === "cancel_requested"
+      ) {
+        monitorRun(selected.id);
+      }
+    } catch (error) {
+      setBusy(false);
+      setMessage(error instanceof Error ? error.message : "无法恢复研究记录");
+    }
+  }
+
+  async function retryHistory(item: ResearchRunSummary) {
+    setBusy(true);
+    setMessage(null);
+    setEvents([]);
+    try {
+      const created = await api.retryResearch(item.id);
+      setRun(created);
+      setQuestion(created.question);
+      setMode(created.mode);
+      await refreshHistory();
+      monitorRun(created.id);
+    } catch (error) {
+      setBusy(false);
+      setMessage(error instanceof Error ? error.message : "研究重试失败");
+    }
+  }
+
+  async function cancelHistory(item: ResearchRunSummary) {
+    setMessage(null);
+    try {
+      const cancelled = await api.cancelResearch(item.id);
+      if (run?.id === item.id) {
+        setRun(cancelled);
+        setEvents(cancelled.events);
+        if (cancelled.status === "cancelled") {
+          setBusy(false);
+          monitorCleanupRef.current?.();
+        }
+      }
+      setMessage("研究取消请求已提交");
+      await refreshHistory();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "取消研究失败");
+    }
+  }
+
   async function research(event: FormEvent) {
     event.preventDefault();
     if (!question.trim()) return;
@@ -81,26 +300,8 @@ export default function App() {
     try {
       const created = await api.createResearch(question.trim(), mode);
       setRun(created);
-      api.subscribe(
-        created.id,
-        (trace) =>
-          setEvents((current) =>
-            current.some((item) => item.sequence === trace.sequence)
-              ? current
-              : [...current, trace],
-          ),
-        async () => {
-          try {
-            const completed = await api.getResearch(created.id);
-            setRun(completed);
-            setEvents(completed.events);
-          } catch (error) {
-            setMessage(error instanceof Error ? error.message : "无法读取运行结果");
-          } finally {
-            setBusy(false);
-          }
-        },
-      );
+      await refreshHistory();
+      monitorRun(created.id);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "研究任务创建失败");
       setBusy(false);
@@ -114,7 +315,7 @@ export default function App() {
           <span className="brand__mark">IR</span>
           <span>
             <strong>InfraResearch</strong>
-            <small>Agent v0.1.0</small>
+            <small>Agent v0.1.1</small>
           </span>
         </a>
         <div className="system-state">
@@ -150,7 +351,48 @@ export default function App() {
 
         <div className="workspace">
           <aside className="sidebar">
-            <SourcesPanel sources={sources} />
+            <SourcesPanel
+              sources={sources}
+              activeSourceId={activeSourceId}
+              onDelete={(source) => void deleteSource(source)}
+              onReindex={(source) => void reindexSource(source)}
+              onCancel={(source) => void cancelSource(source)}
+              query={sourceQuery}
+              statusFilter={sourceStatus}
+              page={sourcePage}
+              pages={sourcePages}
+              total={sourceTotal}
+              onQueryChange={(value) => {
+                setSourceQuery(value);
+                setSourcePage(1);
+              }}
+              onStatusChange={(value) => {
+                setSourceStatus(value);
+                setSourcePage(1);
+              }}
+              onPageChange={setSourcePage}
+            />
+            <ResearchHistory
+              runs={history}
+              activeRunId={run?.id}
+              onOpen={(item) => void openHistory(item)}
+              onRetry={(item) => void retryHistory(item)}
+              onCancel={(item) => void cancelHistory(item)}
+              query={historyQuery}
+              statusFilter={historyStatus}
+              page={historyPage}
+              pages={historyPages}
+              total={historyTotal}
+              onQueryChange={(value) => {
+                setHistoryQuery(value);
+                setHistoryPage(1);
+              }}
+              onStatusChange={(value) => {
+                setHistoryStatus(value);
+                setHistoryPage(1);
+              }}
+              onPageChange={setHistoryPage}
+            />
             <section className="panel importer">
               <p className="eyebrow">Add context</p>
               <h2>导入资料</h2>
@@ -220,6 +462,27 @@ export default function App() {
                 <button className="button button--primary" disabled={busy} type="submit">
                   {busy ? "研究中…" : "开始研究"} <span>→</span>
                 </button>
+                {run &&
+                  ["pending", "running", "cancel_requested"].includes(run.status) && (
+                    <button
+                      className="button button--secondary"
+                      disabled={run.status === "cancel_requested"}
+                      type="button"
+                      onClick={() =>
+                        void cancelHistory({
+                          id: run.id,
+                          question: run.question,
+                          mode: run.mode,
+                          status: run.status,
+                          provider: run.metrics.provider,
+                          created_at: run.created_at,
+                          completed_at: run.completed_at,
+                        })
+                      }
+                    >
+                      取消研究
+                    </button>
+                  )}
               </div>
             </form>
 
@@ -257,7 +520,7 @@ export default function App() {
                       <p className="eyebrow">Live trace</p>
                       <h2>Agent 路径</h2>
                     </div>
-                    <span className="count">{events.length}</span>
+                    <span className="count">{events.filter(isVisibleTraceEvent).length}</span>
                   </div>
                   {run?.plan.subquestions.length ? (
                     <ol className="plan">

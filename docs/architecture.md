@@ -3,11 +3,12 @@
 ```mermaid
 flowchart LR
     UI[React 工作台] -->|HTTP / SSE| API[FastAPI]
-    API --> DB[(SQLite)]
-    API --> ING[文件 / GitHub 导入器]
+    API --> DB[(SQLite / 持久任务队列)]
+    WORKER[独立 Worker 进程] -->|原子 claim / 心跳租约| DB
+    WORKER --> ING[文件 / GitHub 导入器]
     ING --> CHUNK[格式感知分块]
     CHUNK --> Q[(Qdrant Local)]
-    API --> AGENT[Research Agent]
+    WORKER --> AGENT[Research Agent]
     AGENT --> ROUTER[Router]
     ROUTER --> PLAN[Planner]
     PLAN --> RET[Retriever / Tool Selector]
@@ -24,9 +25,23 @@ SQLite 是任务、证据、引用和轨迹的事实来源。Qdrant 只保存 ch
 向量，因此可以安全地从 SQLite 重建。Qdrant 不可用时检索器切换为 SQLite 词法
 检索，并在健康检查和运行指标中显示 `sqlite_lexical`。
 
+来源删除采用软删除：Qdrant point 会立即删除，所有检索路径只读取 completed
+来源，原始上传/仓库副本会清理；SQLite 中的来源和 chunk 快照继续保留，使既有
+研究报告的证据抽屉仍可打开。
+
 Agent 状态包含问题、计划、检索轮次、证据、预算、答案和验证结果。每个节点边界
 都会先持久化事件再继续，以便失败后仍能查看部分轨迹。v0.1.0 是单 Agent；
 Retriever/Provider 接口是未来 MCP 和多 Agent 扩展边界。
+
+API 不执行后台任务，只在同一事务中创建业务资源和 `jobs` 记录。独立 worker
+以 compare-and-swap 原子领取最早的 pending job；心跳租约过期后会清理研究任务
+的部分证据/轨迹并安全重排，导入则通过来源替换保持幂等。升级前遗留的 active
+任务会在 worker 启动时自动接管。
+
+取消采用 cooperative cancellation：API 将运行中的 job 置为
+`cancel_requested`，worker 在 Git 命令、文件遍历、检索轮次、证据登记及模型
+流式响应处检查；pending job 可直接转为 `cancelled`。Qdrant Local 只由 worker
+进程持有，避免多进程同时打开本地 collection。
 
 ## 定位符
 

@@ -5,7 +5,15 @@ from sqlalchemy import select
 
 from infraresearch.agent import ResearchAgent
 from infraresearch.config import Settings
-from infraresearch.models import Chunk, ResearchRun, Source, Status, ToolCall, TraceEvent
+from infraresearch.models import (
+    Chunk,
+    EvidenceRecord,
+    ResearchRun,
+    Source,
+    Status,
+    ToolCall,
+    TraceEvent,
+)
 from infraresearch.provider import Generation, LLMProvider
 from infraresearch.retrieval import VectorIndex
 from infraresearch.schemas import Evidence
@@ -17,7 +25,15 @@ class FixedProvider(LLMProvider):
         self.answer = answer
         self.seen_evidence: list[Evidence] = []
 
-    def generate(self, question: str, evidence: list[Evidence], on_token=None) -> Generation:
+    def generate(
+        self,
+        question: str,
+        evidence: list[Evidence],
+        on_token=None,
+        cancel_check=None,
+    ) -> Generation:
+        if cancel_check:
+            cancel_check()
         self.seen_evidence = evidence
         if on_token:
             on_token(self.answer)
@@ -98,13 +114,32 @@ def test_invalid_citation_is_repaired_only_once(session, tmp_path) -> None:
     make_agent(tmp_path, provider).execute(session, run.id)
     session.refresh(run)
     assert "[S99]" not in (run.answer or "")
-    assert "证据不足" in (run.answer or "")
+    assert "引用修复" in (run.answer or "")
+    assert "[S1]" in (run.answer or "")
     verifier = [
         json.loads(event.data_json)
         for event in run.events
         if event.event_type == "node_completed" and event.node == "citation_verifier"
     ]
     assert verifier[0]["repair_attempts"] == 1
+
+
+def test_missing_citations_fall_back_to_grounded_report(session, tmp_path) -> None:
+    seed(session)
+    settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
+    provider = FixedProvider(settings, "Prefix caching reuses blocks without a marker.")
+    run = ResearchRun(question="Explain prefix caching", mode="agentic")
+    session.add(run)
+    session.commit()
+
+    make_agent(tmp_path, provider).execute(session, run.id)
+    session.refresh(run)
+
+    assert "引用修复" in (run.answer or "")
+    assert "[S1]" in (run.answer or "")
+    assert len(run.citations) == 1
+    assert run.citations[0].valid == 1
+    assert run.citations[0].claim != "Referenced claim"
 
 
 def test_token_budget_truncates_generation_context(session, tmp_path) -> None:
@@ -138,3 +173,39 @@ def test_single_tool_failure_keeps_other_evidence(session, tmp_path) -> None:
     assert run.status == Status.COMPLETED
     assert any(tool.status == Status.FAILED for tool in tools)
     assert provider.seen_evidence
+
+
+def test_duplicate_chunk_content_is_registered_once(session, tmp_path) -> None:
+    content = "Prefix caching reuses KV cache blocks."
+    seed(session, content)
+    duplicate_source = Source(
+        kind="file",
+        name="duplicate.md",
+        uri="duplicate.md",
+        status=Status.COMPLETED,
+    )
+    session.add(duplicate_source)
+    session.flush()
+    session.add(
+        Chunk(
+            source_id=duplicate_source.id,
+            content=content,
+            locator="duplicate.md#L1-L1",
+            metadata_json=json.dumps({"category": "docs"}),
+            content_hash=hashlib.sha256(content.encode()).hexdigest(),
+        )
+    )
+    session.commit()
+
+    settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
+    provider = FixedProvider(settings)
+    run = ResearchRun(question="How are prefix cache blocks reused?", mode="naive")
+    session.add(run)
+    session.commit()
+    make_agent(tmp_path, provider).execute(session, run.id)
+
+    records = session.scalars(
+        select(EvidenceRecord).where(EvidenceRecord.run_id == run.id)
+    ).all()
+    assert len(provider.seen_evidence) == 1
+    assert len(records) == 1

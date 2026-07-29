@@ -46,6 +46,7 @@ def test_file_ingestion_persists_stable_chunks(session, tmp_path) -> None:
     assert ingestion.status == Status.COMPLETED
     assert ingestion.chunks_indexed == 1
     assert chunks[0].locator == "guide.md#L1-L3"
+    assert json.loads(source.metadata_json)["embedding_backend"] == "none"
 
 
 def test_github_ingestion_uses_fixed_sha(session, tmp_path, monkeypatch) -> None:
@@ -71,8 +72,9 @@ def test_github_ingestion_uses_fixed_sha(session, tmp_path, monkeypatch) -> None
             return subprocess.CompletedProcess(command, 0, "abc123\n", "")
         return subprocess.CompletedProcess(command, 0, "", "")
 
-    monkeypatch.setattr("infraresearch.ingestion.subprocess.run", fake_run)
-    IngestionService(settings, VectorIndex(settings)).ingest_github(
+    service = IngestionService(settings, VectorIndex(settings))
+    monkeypatch.setattr(service, "_run_command", fake_run)
+    service.ingest_github(
         session,
         source.id,
         ingestion.id,
