@@ -34,7 +34,7 @@ async def test_health_and_validation_expose_clear_status(monkeypatch, tmp_path) 
         assert response.json()["reranker_backend"] == "identity"
         assert response.json()["candidate_k"] == 20
         assert response.json()["evidence_k"] == 6
-        assert response.json()["version"] == "0.3.0"
+        assert response.json()["version"] == "0.3.1"
         invalid = await client.post(
             "/api/v1/sources/files",
             files={"file": ("weight.safetensors", b"binary", "application/octet-stream")},

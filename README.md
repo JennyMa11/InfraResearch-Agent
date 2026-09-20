@@ -202,6 +202,7 @@ RTX 3060 Laptop / WSL 环境可使用 `make setup-vllm` 创建独立持久环境
 - [当前面试与简历指南](docs/interview-guide.md)
 - [Roadmap 实施与验收状态](docs/roadmap-status.md)
 - [v0.3.0 发布说明](docs/release-v0.3.0.md)
+- [v0.3.1 补丁发布说明](docs/release-v0.3.1.md)
 
 ## 项目结构
 
@@ -215,5 +216,5 @@ docs/        架构、API、配置、测试和运维文档
 
 ## 版本
 
-当前课程原型版本为 `v0.3.0`。范围和非目标见 [PLAN.md](PLAN.md)，变更记录见
+当前课程原型版本为 `v0.3.1`。范围和非目标见 [PLAN.md](PLAN.md)，变更记录见
 [CHANGELOG.md](CHANGELOG.md)。

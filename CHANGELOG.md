@@ -3,6 +3,13 @@
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and
 Semantic Versioning.
 
+## [0.3.1] - 2026-09-20
+
+### Fixed
+
+- Mark the three shebang-based evaluation/OCR command scripts executable so Ruff `EXE001` and
+  clean-checkout CI pass.
+
 ## [0.3.0] - 2026-09-20
 
 ### Added
