@@ -1,0 +1,59 @@
+{
+  "baseline": {
+    "path": "evals/results/roadmap-50q-qwen3-0.6b-full-v2/comparison.json",
+    "model": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca"
+  },
+  "candidate": {
+    "path": "evals/results/roadmap-50q-qwen3-1.7b-full-v2/comparison.json",
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e"
+  },
+  "dataset_sha256": "6de98701ed19f4e50bbdc7b083201ad042a97b2ba07d8c0a8dbe4a0dee0f6785",
+  "corpus_sha256": "6a1cce102e121ef6313769e79475e9715f1c0bea6105d99b5a9fceb8b0888ac7",
+  "bootstrap_samples": 2000,
+  "modes": {
+    "naive": {
+      "questions": 50,
+      "baseline_correctness": 0.7166666666666667,
+      "candidate_correctness": 0.8033333333333333,
+      "correctness_delta": 0.08666666666666666,
+      "correctness_delta_ci95": {
+        "low": -0.023333333333333345,
+        "high": 0.20333333333333334
+      },
+      "baseline_raw_citation_recall": 0.3466666666666667,
+      "candidate_raw_citation_recall": 0.6766666666666666,
+      "baseline_citation_repair_rate": 0.72,
+      "candidate_citation_repair_rate": 0.4
+    },
+    "fixed_retrieval": {
+      "questions": 50,
+      "baseline_correctness": 0.7166666666666667,
+      "candidate_correctness": 0.7933333333333333,
+      "correctness_delta": 0.07666666666666666,
+      "correctness_delta_ci95": {
+        "low": -0.03333333333333334,
+        "high": 0.19333333333333333
+      },
+      "baseline_raw_citation_recall": 0.3466666666666667,
+      "candidate_raw_citation_recall": 0.67,
+      "baseline_citation_repair_rate": 0.72,
+      "candidate_citation_repair_rate": 0.32
+    },
+    "agentic": {
+      "questions": 50,
+      "baseline_correctness": 0.7833333333333333,
+      "candidate_correctness": 0.8366666666666667,
+      "correctness_delta": 0.05333333333333333,
+      "correctness_delta_ci95": {
+        "low": -0.03666666666666668,
+        "high": 0.15666666666666665
+      },
+      "baseline_raw_citation_recall": 0.44666666666666666,
+      "candidate_raw_citation_recall": 0.68,
+      "baseline_citation_repair_rate": 0.6,
+      "candidate_citation_repair_rate": 0.34
+    }
+  }
+}

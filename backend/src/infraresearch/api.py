@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import shutil
 from math import ceil
 from pathlib import Path
 from typing import Annotated, Any
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from fastapi.responses import StreamingResponse
@@ -46,8 +48,10 @@ from .schemas import (
     SourcePage,
     ToolCallOut,
     TraceEventOut,
+    URLSourceIn,
 )
 from .task_queue import enqueue_job, request_cancellation
+from .web import validate_public_url
 
 router = APIRouter(prefix="/api/v1")
 
@@ -133,6 +137,7 @@ async def upload_file(
     upload_dir.mkdir(parents=True, exist_ok=True)
     destination = upload_dir / safe_name
     size = 0
+    digest = hashlib.sha256()
     with destination.open("wb") as handle:
         while chunk := file.file.read(1024 * 1024):
             size += len(chunk)
@@ -144,7 +149,37 @@ async def upload_file(
                 session.commit()
                 raise HTTPException(status_code=413, detail=source.error)
             handle.write(chunk)
+            digest.update(chunk)
     source.uri = str(destination)
+    file_hash = digest.hexdigest()
+    duplicate = next(
+        (
+            item
+            for item in session.scalars(
+                select(Source).where(
+                    Source.kind == "file",
+                    Source.status == Status.COMPLETED,
+                    Source.id != source.id,
+                )
+            ).all()
+            if _source_metadata(item).get("file_hash") == file_hash
+        ),
+        None,
+    )
+    if duplicate:
+        source.status = ingestion.status = Status.COMPLETED
+        ingestion.files_seen = 1
+        ingestion.chunks_indexed = 0
+        ingestion.started_at = ingestion.completed_at = utcnow()
+        source.metadata_json = json.dumps(
+            {
+                "file_hash": file_hash,
+                "duplicate_of": duplicate.id,
+                "incremental_status": "duplicate",
+            }
+        )
+        session.commit()
+        return _ingestion_out(ingestion)
     enqueue_job(session, "ingestion", ingestion.id)
     session.commit()
     return _ingestion_out(ingestion)
@@ -175,6 +210,35 @@ async def add_github_source(
                 "requested_revision": payload.revision,
             }
         ),
+    )
+    session.add(source)
+    session.flush()
+    ingestion = Ingestion(source_id=source.id)
+    session.add(ingestion)
+    session.flush()
+    enqueue_job(session, "ingestion", ingestion.id)
+    session.commit()
+    return _ingestion_out(ingestion)
+
+
+@router.post(
+    "/sources/url",
+    response_model=IngestionOut,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def add_url_source(
+    payload: URLSourceIn,
+    session: Annotated[Session, Depends(get_db)],
+) -> IngestionOut:
+    url = str(payload.url)
+    try:
+        validate_public_url(url, resolve=False)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    source = Source(
+        kind="web",
+        name=urlparse(url).hostname or url,
+        uri=url,
     )
     session.add(source)
     session.flush()
@@ -256,7 +320,7 @@ async def reindex_source(
     source = session.get(Source, source_id)
     if not source or source.status == Status.DELETED:
         raise HTTPException(status_code=404, detail="source not found")
-    if source.kind not in {"file", "github"}:
+    if source.kind not in {"file", "github", "web"}:
         raise HTTPException(status_code=409, detail="this source is managed by its repository")
     if _active_ingestion(session, source.id):
         raise HTTPException(status_code=409, detail="source ingestion is already active")
@@ -426,6 +490,7 @@ def _run_out(session: Session, run: ResearchRun) -> ResearchRunOut:
                 marker=item.marker,
                 claim=item.claim,
                 valid=bool(item.valid),
+                support_score=item.support_score,
             )
             for item in citations
         ],
@@ -448,6 +513,9 @@ def _run_out(session: Session, run: ResearchRun) -> ResearchRunOut:
                 duration_ms=item.duration_ms,
                 status=item.status,
                 error=item.error,
+                error_type=item.error_type,
+                retryable=bool(item.retryable),
+                attempts=item.attempts,
             )
             for item in tools
         ],

@@ -1,0 +1,128 @@
+{
+  "off": "evals/results/runtime-prefix-off.json",
+  "on": "evals/results/runtime-prefix-on.json",
+  "warm_median_ttft_ms": {
+    "off": 80.87343749866704,
+    "on": 49.71775599915418
+  },
+  "ttft_change_percent": -38.52399806800147,
+  "cache_on_counter_deltas": {
+    "hits": 2688,
+    "queries": 2716
+  },
+  "concurrency": {
+    "off": [
+      {
+        "concurrency": 1,
+        "requests": 16,
+        "completed": 16,
+        "failed": 0,
+        "errors": [],
+        "poll_transport_retries": 0,
+        "poll_transport_error_types": [],
+        "success_rate": 1.0,
+        "throughput_tasks_per_second": 0.39534859385211957,
+        "p50_ms": 2479.999322000367,
+        "p95_ms": 2754.198827999062,
+        "wall_seconds": 40.47061314700113
+      },
+      {
+        "concurrency": 4,
+        "requests": 16,
+        "completed": 16,
+        "failed": 0,
+        "errors": [],
+        "poll_transport_retries": 0,
+        "poll_transport_error_types": [],
+        "success_rate": 1.0,
+        "throughput_tasks_per_second": 0.4345893557725409,
+        "p50_ms": 8988.553974000752,
+        "p95_ms": 11395.957933997124,
+        "wall_seconds": 36.8163642010004
+      },
+      {
+        "concurrency": 8,
+        "requests": 16,
+        "completed": 16,
+        "failed": 0,
+        "errors": [],
+        "poll_transport_retries": 1,
+        "poll_transport_error_types": [
+          "ConnectTimeout"
+        ],
+        "success_rate": 1.0,
+        "throughput_tasks_per_second": 0.1955300407442909,
+        "p50_ms": 17017.87063300071,
+        "p95_ms": 70350.16484900189,
+        "wall_seconds": 81.82885831300155
+      },
+      {
+        "concurrency": 16,
+        "requests": 16,
+        "completed": 16,
+        "failed": 0,
+        "errors": [],
+        "poll_transport_retries": 50,
+        "poll_transport_error_types": [
+          "ConnectError",
+          "ReadError"
+        ],
+        "success_rate": 1.0,
+        "throughput_tasks_per_second": 0.4098915051112381,
+        "p50_ms": 20501.356244001727,
+        "p95_ms": 39030.30434399989,
+        "wall_seconds": 39.034719676998066
+      }
+    ],
+    "on": [
+      {
+        "concurrency": 1,
+        "requests": 16,
+        "completed": 16,
+        "failed": 0,
+        "errors": [],
+        "success_rate": 1.0,
+        "throughput_tasks_per_second": 0.41231735629671634,
+        "p50_ms": 2454.7163735005597,
+        "p95_ms": 2619.097550999868,
+        "wall_seconds": 38.80506060600055
+      },
+      {
+        "concurrency": 4,
+        "requests": 16,
+        "completed": 16,
+        "failed": 0,
+        "errors": [],
+        "success_rate": 1.0,
+        "throughput_tasks_per_second": 0.4555164865714239,
+        "p50_ms": 8755.365762500332,
+        "p95_ms": 9194.548612998915,
+        "wall_seconds": 35.12496357800046
+      },
+      {
+        "concurrency": 8,
+        "requests": 16,
+        "completed": 16,
+        "failed": 0,
+        "errors": [],
+        "success_rate": 1.0,
+        "throughput_tasks_per_second": 0.4578821022369204,
+        "p50_ms": 16366.497730500669,
+        "p95_ms": 19243.1962440005,
+        "wall_seconds": 34.9434929250001
+      },
+      {
+        "concurrency": 16,
+        "requests": 16,
+        "completed": 16,
+        "failed": 0,
+        "errors": [],
+        "success_rate": 1.0,
+        "throughput_tasks_per_second": 0.4453421032897782,
+        "p50_ms": 19509.74882399987,
+        "p95_ms": 35923.957983000946,
+        "wall_seconds": 35.927436193000176
+      }
+    ]
+  }
+}

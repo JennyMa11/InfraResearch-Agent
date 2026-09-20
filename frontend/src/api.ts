@@ -51,6 +51,13 @@ export const api = {
       body: JSON.stringify({ url, include_issues: includeIssues }),
     }),
 
+  addUrl: (url: string) =>
+    request<Ingestion>("/sources/url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    }),
+
   reindexSource: (id: string) =>
     request<Ingestion>(`/sources/${id}/reindex`, { method: "POST" }),
 

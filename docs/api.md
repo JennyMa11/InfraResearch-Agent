@@ -7,12 +7,13 @@
 | GET | `/api/v1/health` | 版本、向量后端和 Embedding 配置 |
 | POST | `/api/v1/sources/files` | multipart 上传文件，返回 202 ingestion |
 | POST | `/api/v1/sources/github` | 导入公开 GitHub 仓库 |
+| POST | `/api/v1/sources/url` | 导入公开 HTTP(S) 网页；拒绝私网/本机地址 |
 | GET | `/api/v1/sources?page=1&page_size=20&q=&status=&kind=` | 分页、搜索和过滤数据源 |
 | POST | `/api/v1/sources/{id}/reindex` | 使用原始文件或仓库配置重新索引 |
 | DELETE | `/api/v1/sources/{id}` | 移出检索索引，保留历史证据快照 |
 | GET | `/api/v1/ingestions/{id}` | 导入进度与错误 |
 | POST | `/api/v1/ingestions/{id}/cancel` | 取消 pending/running 导入 |
-| POST | `/api/v1/research` | 创建 `naive` 或 `agentic` 运行 |
+| POST | `/api/v1/research` | 创建 `naive`、`fixed_retrieval` 或 `agentic` 运行 |
 | GET | `/api/v1/research?page=1&page_size=20&q=&status=&mode=` | 分页、搜索和过滤研究历史 |
 | POST | `/api/v1/research/{id}/retry` | 基于原问题创建一次新运行 |
 | POST | `/api/v1/research/{id}/cancel` | 取消 pending/running 研究 |

@@ -114,6 +114,35 @@ def test_naive_run_only_retrieves_once(session, tmp_path) -> None:
     assert run.status == Status.COMPLETED
 
 
+def test_fixed_retrieval_control_always_retrieves_twice(session, tmp_path) -> None:
+    seed(session)
+    settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
+    provider = FixedProvider(settings)
+    run = ResearchRun(
+        question="How are prefix cache blocks reused?",
+        mode="fixed_retrieval",
+    )
+    session.add(run)
+    session.commit()
+
+    make_agent(tmp_path, provider).execute(session, run.id)
+
+    metrics = json.loads(run.metrics_json)
+    assert metrics["retrieval_rounds"] == 2
+    decisions = [
+        json.loads(event.data_json)
+        for event in run.events
+        if event.event_type == "decision_made"
+    ]
+    assert decisions[0]["action"] == "fixed_retrieve_again"
+
+
+def test_query_rewrite_expands_cross_language_retrieval_terms() -> None:
+    rewritten = ResearchAgent._rewrite_query("语义搜索和字面匹配怎么一起用？", 1)
+
+    assert rewritten == "Dense Retrieval BM25 weighted RRF hybrid retrieval"
+
+
 def test_invalid_citation_is_repaired_only_once(session, tmp_path) -> None:
     seed(session)
     settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
@@ -150,6 +179,35 @@ def test_missing_citations_fall_back_to_grounded_report(session, tmp_path) -> No
     assert len(run.citations) == 1
     assert run.citations[0].valid == 1
     assert run.citations[0].claim != "Referenced claim"
+
+
+def test_registered_marker_with_unsupported_claim_is_repaired(session, tmp_path) -> None:
+    seed(session)
+    settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
+    provider = FixedProvider(settings, "The production cluster runs on Mars [S1].")
+    run = ResearchRun(question="Explain prefix caching", mode="naive")
+    session.add(run)
+    session.commit()
+
+    make_agent(tmp_path, provider).execute(session, run.id)
+    session.refresh(run)
+
+    assert "Mars" not in (run.answer or "")
+    assert "引用修复" in (run.answer or "")
+    generated = next(
+        json.loads(event.data_json)
+        for event in run.events
+        if event.event_type == "answer_generated"
+    )
+    assert generated["answer"] == "The production cluster runs on Mars [S1]."
+    assert run.citations[0].valid == 1
+    assert run.citations[0].support_score >= settings.citation_support_threshold
+    verifier = next(
+        json.loads(event.data_json)
+        for event in run.events
+        if event.event_type == "node_completed" and event.node == "citation_verifier"
+    )
+    assert verifier["repaired"] is True
 
 
 def test_citation_repair_can_be_disabled_for_ablation(session, tmp_path) -> None:

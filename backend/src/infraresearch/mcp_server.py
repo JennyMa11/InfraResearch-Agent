@@ -27,6 +27,8 @@ def _serialize_hits(result) -> dict[str, Any]:
         "status": result.status,
         "attempts": result.attempts,
         "duration_ms": round(result.duration_ms, 2),
+        "error_type": result.error_type,
+        "retryable": result.retryable,
         "results": [
             {
                 "chunk_id": hit.chunk.id,
@@ -34,6 +36,9 @@ def _serialize_hits(result) -> dict[str, Any]:
                 "content": hit.chunk.content,
                 "locator": hit.chunk.locator,
                 "retrieval_score": hit.retrieval_score,
+                "dense_score": hit.dense_score,
+                "lexical_score": hit.lexical_score,
+                "fusion_method": hit.fusion_method,
             }
             for hit in result.hits
         ],
@@ -96,6 +101,17 @@ def create_mcp_server(
 
         return execute("github_issue_search", query, top_k)
 
+    if settings.web_search_enabled:
+
+        @server.tool(structured_output=True)
+        def web_search(
+            query: Annotated[str, Field(min_length=1, max_length=4000)],
+            top_k: Annotated[int, Field(ge=1, le=10)] = 5,
+        ) -> dict[str, Any]:
+            """Search the public web only when local indexed evidence is insufficient."""
+
+            return execute("web_search", query, top_k)
+
     @server.resource(
         "infraresearch://source/{source_id}",
         name="source",
@@ -138,6 +154,76 @@ def create_mcp_server(
                     "content": chunk.content,
                     "locator": chunk.locator,
                     "metadata": json.loads(chunk.metadata_json),
+                },
+                ensure_ascii=False,
+            )
+
+    @server.resource(
+        "infraresearch://repo/{source_id}/file/{chunk_id}",
+        name="repo_file",
+        description="Read a repository file chunk with commit-stable path and line locator.",
+        mime_type="application/json",
+    )
+    def repo_file_resource(source_id: str, chunk_id: str) -> str:
+        with session_factory() as session:
+            source = session.get(Source, source_id)
+            chunk = session.get(Chunk, chunk_id)
+            if (
+                not source
+                or source.kind != "github"
+                or not chunk
+                or chunk.source_id != source.id
+            ):
+                raise ValueError("repository file chunk not found")
+            return json.dumps(
+                {
+                    "source_id": source.id,
+                    "repository": source.name,
+                    "revision": source.revision,
+                    "chunk_id": chunk.id,
+                    "path": chunk.path,
+                    "start_line": chunk.start_line,
+                    "end_line": chunk.end_line,
+                    "locator": chunk.locator,
+                    "content": chunk.content,
+                    "metadata": json.loads(chunk.metadata_json),
+                },
+                ensure_ascii=False,
+            )
+
+    @server.resource(
+        "infraresearch://issue/{source_id}/{number}",
+        name="issue",
+        description="Read a complete imported GitHub Issue by source ID and issue number.",
+        mime_type="application/json",
+    )
+    def issue_resource(source_id: str, number: str) -> str:
+        with session_factory() as session:
+            source = session.get(Source, source_id)
+            if not source or source.kind != "issue":
+                raise ValueError("issue source not found")
+            chunks = session.query(Chunk).filter(Chunk.source_id == source.id).all()
+            chunk = next(
+                (
+                    item
+                    for item in chunks
+                    if str(json.loads(item.metadata_json).get("number")) == number
+                ),
+                None,
+            )
+            if not chunk:
+                raise ValueError("issue not found")
+            return json.dumps(
+                {
+                    "source_id": source.id,
+                    "repository": json.loads(source.metadata_json).get(
+                        "parent_repository"
+                    ),
+                    "number": int(number),
+                    "url": json.loads(chunk.metadata_json).get("url"),
+                    "updated_at": json.loads(chunk.metadata_json).get("updated_at"),
+                    "locator": chunk.locator,
+                    "content": chunk.content,
                 },
                 ensure_ascii=False,
             )

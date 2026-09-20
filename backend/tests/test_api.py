@@ -34,7 +34,7 @@ async def test_health_and_validation_expose_clear_status(monkeypatch, tmp_path) 
         assert response.json()["reranker_backend"] == "identity"
         assert response.json()["candidate_k"] == 20
         assert response.json()["evidence_k"] == 6
-        assert response.json()["version"] == "0.2.0"
+        assert response.json()["version"] == "0.3.0"
         invalid = await client.post(
             "/api/v1/sources/files",
             files={"file": ("weight.safetensors", b"binary", "application/octet-stream")},
@@ -50,6 +50,12 @@ async def test_health_and_validation_expose_clear_status(monkeypatch, tmp_path) 
         )
         assert invalid_repository.status_code == 422
         assert "only public" in invalid_repository.json()["detail"]
+        private_page = await client.post(
+            "/api/v1/sources/url",
+            json={"url": "http://127.0.0.1/admin"},
+        )
+        assert private_page.status_code == 422
+        assert "private or local" in private_page.json()["detail"]
 
 
 @pytest.mark.asyncio
@@ -104,6 +110,34 @@ async def test_file_to_agentic_report_and_sse(monkeypatch, tmp_path) -> None:
             ).json()
             assert reindexed["status"] == "completed"
             assert reindexed["chunks_indexed"] == ingestion["chunks_indexed"]
+
+            duplicate = await client.post(
+                "/api/v1/sources/files",
+                files={
+                    "file": (
+                        "cache-copy.md",
+                        b"# Prefix cache\n\nPrefix caching reuses KV blocks.",
+                        "text/markdown",
+                    )
+                },
+            )
+            assert duplicate.status_code == 202
+            assert duplicate.json()["status"] == "completed"
+            assert duplicate.json()["chunks_indexed"] == 0
+            duplicate_source_id = duplicate.json()["source_id"]
+            duplicate_source = next(
+                item
+                for item in (await client.get("/api/v1/sources", params={"page_size": 100})).json()[
+                    "items"
+                ]
+                if item["id"] == duplicate_source_id
+            )
+            assert duplicate_source["metadata"]["duplicate_of"] == upload.json()["source_id"]
+            duplicate_deleted = await client.delete(
+                f"/api/v1/sources/{duplicate_source_id}"
+            )
+            assert duplicate_deleted.status_code == 204
+            assert worker.run_once()  # duplicate source cleanup
 
             created = await client.post(
                 "/api/v1/research",

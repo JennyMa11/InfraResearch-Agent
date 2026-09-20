@@ -1,0 +1,4894 @@
+{
+  "generated_at": "2026-09-20T04:44:55.449746+00:00",
+  "version": "0.2.0",
+  "git": {
+    "commit": "90662ed0d8d7b6628fdca7351ab1f9c123ba438f",
+    "short_commit": "90662ed",
+    "dirty": true
+  },
+  "environment": {
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "python": "3.12.3"
+  },
+  "dataset": {
+    "path": "/home/kylin/RAG/evals/questions.json",
+    "sha256": "7efe7fa1eedd50f9843851df3fb02fd86345eceb603b9500be2552855afa59d4",
+    "questions": 50
+  },
+  "corpus": {
+    "path": "/home/kylin/RAG/evals/corpus.md",
+    "sha256": "6a1cce102e121ef6313769e79475e9715f1c0bea6105d99b5a9fceb8b0888ac7",
+    "chunks": 20
+  },
+  "configuration": {
+    "seed": 17,
+    "provider": "extractive",
+    "llm_model": "Qwen/Qwen3-0.6B",
+    "llm_revision": "unrecorded",
+    "vector_backend": "qdrant",
+    "embedding_backend": "hash",
+    "embedding_revision": "unrecorded",
+    "reranker_backend": "identity",
+    "reranker_model": "BAAI/bge-reranker-base",
+    "reranker_revision": "unrecorded",
+    "reranker_local_files_only": false,
+    "warmup_reranker": true,
+    "candidate_k": 20,
+    "evidence_k": 6,
+    "max_agent_rewrites": 2,
+    "token_budget": 6000,
+    "citation_repair": true,
+    "modes": [
+      "naive",
+      "fixed_retrieval",
+      "agentic"
+    ],
+    "python_hash_seed": "unset"
+  },
+  "actual": {
+    "vector_backend": "qdrant_local+bm25",
+    "embedding_backend": "hash",
+    "reranker": "identity",
+    "reranker_warmup_ms": 0.0
+  },
+  "retrieval": {
+    "summary": {
+      "recall_at_1": 0.7033333333333334,
+      "recall_at_3": 0.79,
+      "recall_at_5": 0.8433333333333334,
+      "recall_at_10": 0.8833333333333333,
+      "mrr": 0.7898888888888889,
+      "ndcg_at_10": 0.9012287829354066
+    },
+    "by_category": {
+      "agent_ablation": {
+        "recall_at_1": 0.6666666666666666,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.8333333333333334,
+        "ndcg_at_10": 0.8672309845443266
+      },
+      "citation": {
+        "recall_at_1": 0.5,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.75,
+        "ndcg_at_10": 0.8154648767857288
+      },
+      "code_locator": {
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.25,
+        "ndcg_at_10": 0.43067655807339306
+      },
+      "cost": {
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0
+      },
+      "exact_term": {
+        "recall_at_1": 0.5,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.6666666666666666,
+        "ndcg_at_10": 0.75
+      },
+      "failure": {
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9667731483349937
+      },
+      "fuzzy": {
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.1,
+        "ndcg_at_10": 0.2890648263178879
+      },
+      "incremental": {
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.2,
+        "ndcg_at_10": 0.38685280723454163
+      },
+      "insufficient": {
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_10": 1.0
+      },
+      "issue_join": {
+        "recall_at_1": 0.3333333333333333,
+        "recall_at_3": 0.6666666666666666,
+        "recall_at_5": 0.6666666666666666,
+        "recall_at_10": 0.6666666666666666,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9708923176105698
+      },
+      "mcp": {
+        "recall_at_1": 0.3333333333333333,
+        "recall_at_3": 0.3333333333333333,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.5863552102788964
+      },
+      "model_comparison": {
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0
+      },
+      "multi_hop": {
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0
+      },
+      "reranker": {
+        "recall_at_1": 0.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "ndcg_at_10": 0.6309297535714575
+      },
+      "scale": {
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0
+      },
+      "standard": {
+        "recall_at_1": 0.9285714285714286,
+        "recall_at_3": 0.9285714285714286,
+        "recall_at_5": 0.9285714285714286,
+        "recall_at_10": 0.9761904761904762,
+        "mrr": 0.9576719576719577,
+        "ndcg_at_10": 0.95908210835075
+      },
+      "tooling": {
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0
+      },
+      "trace": {
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0
+      },
+      "web": {
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9597743944434114
+      }
+    },
+    "rows": [
+      {
+        "id": "q01",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 1.0,
+            "dense_score": 0.1849000627525465,
+            "lexical_score": 9.038766650676761,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.15126584658911235,
+            "lexical_score": 5.79503426337242,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.1543895289212528,
+            "lexical_score": 3.5073805352955283,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.07741129969381065,
+            "lexical_score": 3.996200876819533,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.938683712121212,
+            "dense_score": 0.09990015345905705,
+            "lexical_score": 3.5662935721886777,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9313519813519814,
+            "dense_score": 0.1068733382229288,
+            "lexical_score": 3.1738941822238376,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.13305642234446916,
+            "lexical_score": 2.2627375963949423,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.8848013453857473,
+            "dense_score": 0.020100756394491853,
+            "lexical_score": 2.372420534819055,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.8781068765534382,
+            "dense_score": 0.055048184875893566,
+            "lexical_score": 0.8178158005707877,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.8777432712215321,
+            "dense_score": 0.023570225641117028,
+            "lexical_score": 1.0337420676008502,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q02",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 1.0,
+            "dense_score": 0.2137467049617188,
+            "lexical_score": 22.458030847026993,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9540566959921798,
+            "dense_score": 0.07918075700648115,
+            "lexical_score": 6.240967954784788,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.08624394213580334,
+            "lexical_score": 6.179840816151993,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9404648956356736,
+            "dense_score": 0.14164285110388472,
+            "lexical_score": 3.486572531325061,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.09613425919033777,
+            "lexical_score": 3.2658136715077086,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9122767857142856,
+            "dense_score": 0.06374148525033684,
+            "lexical_score": 5.342748185747219,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.9037532923617206,
+            "dense_score": 0.06639061332590257,
+            "lexical_score": 3.5542821834176896,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.8909381663113005,
+            "dense_score": 0.06872081492532488,
+            "lexical_score": 2.4337028364072686,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8854427736006683,
+            "dense_score": 0.09898780100314795,
+            "lexical_score": 0.8678385056720019,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.8705465587044534,
+            "dense_score": 0.024784079922244802,
+            "lexical_score": 4.76225858633053,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q03",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 1.0,
+            "dense_score": 0.21052871664877015,
+            "lexical_score": 15.983199242738568,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.0750939263229776,
+            "lexical_score": 5.484734685613136,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9540566959921798,
+            "dense_score": 0.08012830773394208,
+            "lexical_score": 3.60148727391584,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9317863805970149,
+            "dense_score": 0.07319250423388313,
+            "lexical_score": 2.4165091157230534,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.03479445034530352,
+            "lexical_score": 4.423747763416194,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.9037532923617206,
+            "dense_score": 0.039840954494933065,
+            "lexical_score": 2.3451834260564346,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.8943707191780821,
+            "dense_score": 0.01553424419228416,
+            "lexical_score": 4.905947673847139,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.8777432712215321,
+            "dense_score": 0.028490144356625037,
+            "lexical_score": 1.8768097156308132,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8716064502959787,
+            "dense_score": 0.03443162044096073,
+            "lexical_score": 0.9892710004822849,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.8702029334940726,
+            "dense_score": -0.04161251911370827,
+            "lexical_score": 5.1335390519322415,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q04",
+        "category": "standard",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.1111111111111111,
+        "ndcg_at_10": 0.3010299956639812,
+        "hits": [
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 1.0,
+            "dense_score": 0.15145981229922312,
+            "lexical_score": 8.015652134812537,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.953125,
+            "dense_score": 0.08688100755348208,
+            "lexical_score": 2.8747910329082607,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9471593644679827,
+            "dense_score": 0.12945956853556825,
+            "lexical_score": 2.172557904546532,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9462481962481962,
+            "dense_score": 0.10067341070673926,
+            "lexical_score": 2.5959023667514214,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9112597547380157,
+            "dense_score": 0.08559209922157653,
+            "lexical_score": 1.2352247711482702,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9112597547380157,
+            "dense_score": 0.03919308979969884,
+            "lexical_score": 2.861132283597481,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.9077380952380951,
+            "dense_score": 0.018791150869294997,
+            "lexical_score": 3.305839514919171,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9037532923617206,
+            "dense_score": 0.055785600975966555,
+            "lexical_score": 1.480078543019194,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.8986021505376345,
+            "dense_score": 0.0,
+            "lexical_score": 4.082534252539987,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.8169642857142857,
+            "dense_score": -0.0804084388536001,
+            "lexical_score": 1.1767964195597151,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q05",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 1.0,
+            "dense_score": 0.35876885801553726,
+            "lexical_score": 27.56334282193856,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.21901325583457948,
+            "lexical_score": 7.777365672798519,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9682539682539681,
+            "dense_score": 0.2159182518720627,
+            "lexical_score": 9.679396964253757,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9384615384615385,
+            "dense_score": 0.1324244409799576,
+            "lexical_score": 6.832501655188603,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9276497695852534,
+            "dense_score": 0.0966987580060959,
+            "lexical_score": 11.596589397854768,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.12219196110963823,
+            "lexical_score": 6.452612536681544,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.910650623885918,
+            "dense_score": 0.12780192792415618,
+            "lexical_score": 5.119027593853815,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.8972528661042612,
+            "dense_score": 0.10787197351455688,
+            "lexical_score": 5.772454251453825,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8943707191780821,
+            "dense_score": 0.16556746363639832,
+            "lexical_score": 3.3700049589525864,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.8842436974789916,
+            "dense_score": 0.11624763607978822,
+            "lexical_score": 4.052243083581816,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q06",
+        "category": "standard",
+        "recall_at_1": 0.5,
+        "recall_at_3": 0.5,
+        "recall_at_5": 0.5,
+        "recall_at_10": 0.5,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 1.0,
+            "dense_score": 0.3255752760068581,
+            "lexical_score": 14.807615064291358,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.3048310420767636,
+            "lexical_score": 12.360349985193915,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.26475383304515165,
+            "lexical_score": 13.065574415346944,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9462481962481962,
+            "dense_score": 0.27208681182743966,
+            "lexical_score": 4.731652453870608,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9457932692307692,
+            "dense_score": 0.15432604871133582,
+            "lexical_score": 8.892486780801669,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9049450549450548,
+            "dense_score": 0.10344576697138178,
+            "lexical_score": 6.109676105005308,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9037532923617206,
+            "dense_score": 0.12001066670625606,
+            "lexical_score": 4.032057794441327,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8978354978354978,
+            "dense_score": 0.14202178167607968,
+            "lexical_score": 2.1111077546533856,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.11047363749023949,
+            "lexical_score": 3.1062125018952402,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.8730320997750971,
+            "dense_score": 0.1256561806190808,
+            "lexical_score": 1.4116071945332485,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q07",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9198471398508852,
+        "hits": [
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 1.0,
+            "dense_score": 0.2483511954545975,
+            "lexical_score": 18.351300496615824,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.21667051315307617,
+            "lexical_score": 16.540291503892274,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.20465595424175265,
+            "lexical_score": 7.283911888338,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9326563958916899,
+            "dense_score": 0.1114172011613846,
+            "lexical_score": 9.93876352695544,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9244546498277841,
+            "dense_score": 0.1494818687438965,
+            "lexical_score": 6.083080930990191,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.17056057155132295,
+            "lexical_score": 3.949068014441973,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.11594819426536561,
+            "lexical_score": 6.14896611051182,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9112597547380157,
+            "dense_score": 0.10493443608283996,
+            "lexical_score": 7.105578224678517,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.8742833742833743,
+            "dense_score": 0.1348399668931961,
+            "lexical_score": 2.045393554784119,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8593253968253967,
+            "dense_score": 0.10464092344045639,
+            "lexical_score": 2.234057982157553,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q08",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 1.0,
+            "dense_score": 0.5295740955362249,
+            "lexical_score": 33.992469085801304,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9540566959921798,
+            "dense_score": 0.16448792769153092,
+            "lexical_score": 9.023028393085927,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.16610265122934076,
+            "lexical_score": 8.156796245940654,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9339644693782141,
+            "dense_score": 0.21359739053563143,
+            "lexical_score": 5.034205080647489,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9326563958916899,
+            "dense_score": 0.1988967692288985,
+            "lexical_score": 5.2996340817556575,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9317863805970149,
+            "dense_score": 0.18105170990899924,
+            "lexical_score": 5.341237595770869,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.13856849938594512,
+            "lexical_score": 5.48163084008983,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.9122767857142856,
+            "dense_score": 0.13055824003276637,
+            "lexical_score": 5.530599381825522,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8687878787878789,
+            "dense_score": 0.05259516899023043,
+            "lexical_score": 5.418307863373243,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.14617634053490086,
+            "lexical_score": 2.5828087308811947,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q09",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 1.0,
+            "dense_score": 0.42105745483197426,
+            "lexical_score": 21.03148840136022,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.18009006804615602,
+            "lexical_score": 11.219971208659869,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.1832114495952573,
+            "lexical_score": 4.680680800454479,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9462481962481962,
+            "dense_score": 0.12865350849001647,
+            "lexical_score": 9.877858219378872,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9313519813519814,
+            "dense_score": 0.15774914539641605,
+            "lexical_score": 4.629250243882207,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9061399647887324,
+            "dense_score": 0.0,
+            "lexical_score": 6.1885406353230525,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9037532923617206,
+            "dense_score": 0.11611694954071597,
+            "lexical_score": 1.7630297418742442,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8986021505376345,
+            "dense_score": 0.19980030307065083,
+            "lexical_score": 0.7985009254053307,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8972528661042612,
+            "dense_score": 0.033264105586117275,
+            "lexical_score": 2.651055561021544,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.09649346519444119,
+            "lexical_score": 1.6747294524409315,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9198471398508852,
+        "hits": [
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 1.0,
+            "dense_score": 0.23570228141968158,
+            "lexical_score": 16.1066819630725,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.22785987582872022,
+            "lexical_score": 5.917387722141584,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9471593644679827,
+            "dense_score": 0.13740857661591896,
+            "lexical_score": 6.308206580455068,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9462481962481962,
+            "dense_score": 0.1398757239671462,
+            "lexical_score": 6.235724516236805,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9457932692307692,
+            "dense_score": 0.15007505285766676,
+            "lexical_score": 5.6044489845654075,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9326563958916899,
+            "dense_score": 0.1995846335167037,
+            "lexical_score": 4.646809975180906,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9112597547380157,
+            "dense_score": 0.14564381974976964,
+            "lexical_score": 2.917978474441618,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8978354978354978,
+            "dense_score": 0.0672292651507166,
+            "lexical_score": 4.843328172601392,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8781068765534382,
+            "dense_score": 0.07992012276724564,
+            "lexical_score": 2.7887299626357276,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.8777432712215321,
+            "dense_score": 0.07254762133232742,
+            "lexical_score": 2.816021012600783,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q11",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 1.0,
+            "dense_score": 0.3236028621033319,
+            "lexical_score": 26.387532010462195,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.11070185882119143,
+            "lexical_score": 6.912774674024288,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.08232195461705943,
+            "lexical_score": 4.863770559420299,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9462481962481962,
+            "dense_score": 0.09373855922661536,
+            "lexical_score": 3.3321028710537903,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9317863805970149,
+            "dense_score": 0.07817631237748525,
+            "lexical_score": 4.605509050948845,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.0875935760813482,
+            "lexical_score": 1.8797748196625765,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.8978354978354978,
+            "dense_score": 0.08056595214977783,
+            "lexical_score": 1.3673108233297928,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.015787724590943644,
+            "lexical_score": 2.7659480852769542,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.866337630942788,
+            "dense_score": 0.07271525440910492,
+            "lexical_score": 0.9392681884707759,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.866337630942788,
+            "dense_score": 0.025854384719104246,
+            "lexical_score": 2.734270758924423,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q12",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 1.0,
+            "dense_score": 0.2201927548934274,
+            "lexical_score": 18.62803680191046,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.15009575990501922,
+            "lexical_score": 4.853994523356827,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.09589265879535205,
+            "lexical_score": 4.103867830332014,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9326563958916899,
+            "dense_score": 0.05789607911666471,
+            "lexical_score": 4.760001080150212,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.070710682694546,
+            "lexical_score": 2.9900314079857813,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.9112597547380157,
+            "dense_score": 0.0924500294525416,
+            "lexical_score": 2.5807039897265844,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9037532923617206,
+            "dense_score": 0.058058474770357985,
+            "lexical_score": 2.7167718835003694,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.8943707191780821,
+            "dense_score": 0.034815533592830475,
+            "lexical_score": 4.614877129989617,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.8916986769099445,
+            "dense_score": 0.045022517011539004,
+            "lexical_score": 3.755076234640136,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8778782894736842,
+            "dense_score": 0.09325048264476414,
+            "lexical_score": 0.7006262417286155,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q13",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 1.0,
+            "dense_score": 0.39975134283304214,
+            "lexical_score": 12.461714135430382,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.25149255618453026,
+            "lexical_score": 10.745138687589815,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9682539682539681,
+            "dense_score": 0.21067524701356888,
+            "lexical_score": 6.52917051599413,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.9457932692307692,
+            "dense_score": 0.1969316080212593,
+            "lexical_score": 3.8116133754118655,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9244546498277841,
+            "dense_score": 0.16854995861649513,
+            "lexical_score": 3.7800130096320643,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9122767857142856,
+            "dense_score": 0.20554467104375362,
+            "lexical_score": 1.903752964608393,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9041501976284585,
+            "dense_score": 0.1478280909359455,
+            "lexical_score": 3.526469069336195,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8909381663113005,
+            "dense_score": 0.09764168411493301,
+            "lexical_score": 3.1170772748742035,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.14824986457824707,
+            "lexical_score": 1.2343080084798332,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.866337630942788,
+            "dense_score": 0.07265477627515793,
+            "lexical_score": 2.2683117400481314,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q14",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 1.0,
+            "dense_score": 0.3698151292984595,
+            "lexical_score": 34.16600921900735,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.22236000484653454,
+            "lexical_score": 9.79426983402464,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.14154704736100115,
+            "lexical_score": 9.961979413904603,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.1503528045734783,
+            "lexical_score": 7.554017709387342,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.9339644693782141,
+            "dense_score": 0.06579516978830469,
+            "lexical_score": 11.574503739801717,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.09826074017952405,
+            "lexical_score": 9.800424369972756,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9242424242424242,
+            "dense_score": 0.1139605843210168,
+            "lexical_score": 8.905299977204837,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.14916930663709152,
+            "lexical_score": 6.175609494742303,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.8781068765534382,
+            "dense_score": 0.0470823608057436,
+            "lexical_score": 6.5838538103316875,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8565396700706991,
+            "dense_score": 0.10107168190219737,
+            "lexical_score": 1.5164514606035262,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q15",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 1.0,
+            "dense_score": 0.31333978211242397,
+            "lexical_score": 31.60406519217334,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.08164966004455573,
+            "lexical_score": 4.634039269281407,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9462481962481962,
+            "dense_score": 0.030151133205700762,
+            "lexical_score": 3.512426575975531,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9261559696342305,
+            "dense_score": 0.05383819125701709,
+            "lexical_score": 2.0107968060669204,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.05013947529454535,
+            "lexical_score": 2.2138823639149705,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8943707191780821,
+            "dense_score": -0.013222152743473561,
+            "lexical_score": 3.485228229378189,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.01730321414750145,
+            "lexical_score": 0.910465552317855,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8653346653346653,
+            "dense_score": -0.04321134070761812,
+            "lexical_score": 3.3852547618493136,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.8652917505030181,
+            "dense_score": 0.0,
+            "lexical_score": 1.8495278767111243,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8634370015948962,
+            "dense_score": -0.03202561364100373,
+            "lexical_score": 2.6528956738290956,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q16",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9919354838709679,
+            "dense_score": 0.24745078699198703,
+            "lexical_score": 17.180674999327785,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9841269841269842,
+            "dense_score": 0.2761240471777154,
+            "lexical_score": 11.885891534105049,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.15456116823286936,
+            "lexical_score": 15.641264534476901,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.19047797856299947,
+            "lexical_score": 4.821071770175121,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9457932692307692,
+            "dense_score": 0.14774753759466913,
+            "lexical_score": 7.319910294929309,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.910650623885918,
+            "dense_score": 0.12215819130462746,
+            "lexical_score": 4.591231649484301,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9041501976284585,
+            "dense_score": 0.14154880807167056,
+            "lexical_score": 3.279217201665527,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8909381663113005,
+            "dense_score": 0.12329715105073857,
+            "lexical_score": 2.6317684977951625,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.8848013453857473,
+            "dense_score": 0.08116412595355768,
+            "lexical_score": 4.4348494087765635,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.04675530179480997,
+            "lexical_score": 3.9530314297590117,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q17",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 1.0,
+            "dense_score": 0.11480037657669104,
+            "lexical_score": 10.433247236373138,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.08060323318022193,
+            "lexical_score": 3.4729139896593897,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.11219363207556968,
+            "lexical_score": 1.4946608636824128,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9041501976284585,
+            "dense_score": -0.020558557242979326,
+            "lexical_score": 1.4111826277583668,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.900173611111111,
+            "dense_score": -0.023032672756764815,
+            "lexical_score": 1.5721059179329744,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8970588235294117,
+            "dense_score": 0.0,
+            "lexical_score": 1.321656860503667,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8962891462891462,
+            "dense_score": -0.03573138117275516,
+            "lexical_score": 3.2016230799312964,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.8412998299641035,
+            "dense_score": -0.062364806020644745,
+            "lexical_score": 1.3913413597784017,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.4765625,
+            "dense_score": 0.07221581511775357,
+            "lexical_score": null,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.46923076923076923,
+            "dense_score": 0.025976216733742903,
+            "lexical_score": null,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q18",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 1.0,
+            "dense_score": 0.18609684655040648,
+            "lexical_score": 15.915778862718058,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.1348399730917421,
+            "lexical_score": 5.758752635743305,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9457932692307692,
+            "dense_score": 0.05838742483987233,
+            "lexical_score": 2.504850582235984,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9198412698412697,
+            "dense_score": 0.09589266350917439,
+            "lexical_score": 1.3673108233297928,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.04327423208549232,
+            "lexical_score": 1.8607230872219327,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8972528661042612,
+            "dense_score": 0.03475240302139283,
+            "lexical_score": 1.5825834771138527,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.8962891462891462,
+            "dense_score": 0.0,
+            "lexical_score": 3.815321502587462,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8742833742833743,
+            "dense_score": 0.05637345260788499,
+            "lexical_score": 1.1833646081631015,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8730320997750971,
+            "dense_score": 0.055785600975966555,
+            "lexical_score": 1.2872716705431384,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.8656400966183575,
+            "dense_score": 0.02139802480539413,
+            "lexical_score": 1.4111826277583668,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q19",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 1.0,
+            "dense_score": 0.09772039047185656,
+            "lexical_score": 13.380747087799273,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.04379678804067409,
+            "lexical_score": 1.8797748196625765,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.035955873567036875,
+            "lexical_score": 1.8872579883449456,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.9122767857142856,
+            "dense_score": 0.01888137288512392,
+            "lexical_score": 2.372420534819055,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.910650623885918,
+            "dense_score": 0.028194193798420097,
+            "lexical_score": 2.0149057313916123,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.900173611111111,
+            "dense_score": 0.04428074352847657,
+            "lexical_score": 1.0337420676008502,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8909381663113005,
+            "dense_score": 0.031246186408871782,
+            "lexical_score": 1.4740272950078133,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8870389884088514,
+            "dense_score": 0.014341431011824717,
+            "lexical_score": 2.2344863288651515,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8802308802308801,
+            "dense_score": 0.0,
+            "lexical_score": 3.0715225938349313,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8731854838709677,
+            "dense_score": -0.01876797083375869,
+            "lexical_score": 3.121525248612625,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q20",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 1.0,
+            "dense_score": 0.2230951745491421,
+            "lexical_score": 19.391872372346977,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9540566959921798,
+            "dense_score": 0.09913632127744833,
+            "lexical_score": 2.277079116213032,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.08240079359171809,
+            "lexical_score": 3.0730067990316527,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9276497695852534,
+            "dense_score": 0.04341902273578626,
+            "lexical_score": 6.48142189384291,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.07699905185432239,
+            "lexical_score": 1.6415926792790247,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.04545454584019006,
+            "lexical_score": 3.366346039774353,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.910650623885918,
+            "dense_score": 0.06321395465540904,
+            "lexical_score": 1.6831804265220232,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9104477611940298,
+            "dense_score": 0.05311606916395677,
+            "lexical_score": 2.119261707995268,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9077380952380951,
+            "dense_score": 0.025213643272633077,
+            "lexical_score": 4.073069591394167,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.8813929313929314,
+            "dense_score": 0.06392027698066713,
+            "lexical_score": 0.9392681884707759,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q21",
+        "category": "multi_hop",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 1.0,
+            "dense_score": 0.2724746349758535,
+            "lexical_score": 29.097619289193723,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.1955751214557406,
+            "lexical_score": 6.632530671277603,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.15484193352918535,
+            "lexical_score": 9.125974652701016,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.18907458055560727,
+            "lexical_score": 5.298461900535778,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9276497695852534,
+            "dense_score": 0.07945521702130262,
+            "lexical_score": 11.217152471707221,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.09429373761101424,
+            "lexical_score": 7.398929546561103,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.13010726659407398,
+            "lexical_score": 4.993084830211755,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.8978354978354978,
+            "dense_score": 0.12909943821553355,
+            "lexical_score": 4.325292463958795,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8857323232323232,
+            "dense_score": 0.04191297504915396,
+            "lexical_score": 5.664360176039262,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.8618905472636815,
+            "dense_score": 0.11412705895466427,
+            "lexical_score": 2.760612797089171,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q22",
+        "category": "multi_hop",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 1.0,
+            "dense_score": 0.29842460033517093,
+            "lexical_score": 39.456842415720565,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.08151933153041621,
+            "lexical_score": 8.266303236626708,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.11565090363917686,
+            "lexical_score": 4.803586456554246,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9339644693782141,
+            "dense_score": 0.11613145014688903,
+            "lexical_score": 2.1282523264649793,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9313519813519814,
+            "dense_score": 0.07334770633601939,
+            "lexical_score": 3.1373793109754886,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9261559696342305,
+            "dense_score": 0.04848811302829571,
+            "lexical_score": 5.872056329764928,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8928418803418803,
+            "dense_score": 0.03903352857761633,
+            "lexical_score": 3.860960721103494,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8916986769099445,
+            "dense_score": 0.062329789359748596,
+            "lexical_score": 1.4960338609498913,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.052190687606667945,
+            "lexical_score": 1.4827617402051292,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.8714285714285713,
+            "dense_score": 0.04767313254734487,
+            "lexical_score": 1.7636687126766928,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q23",
+        "category": "fuzzy",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.1,
+        "ndcg_at_10": 0.2890648263178879,
+        "hits": [
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9841269841269842,
+            "dense_score": 0.11187477122630696,
+            "lexical_score": 9.260264416032317,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.938683712121212,
+            "dense_score": 0.10451490613253023,
+            "lexical_score": 3.9345423545157137,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9295774647887324,
+            "dense_score": 0.18609684655040648,
+            "lexical_score": 1.5529093711908002,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.10425720906417849,
+            "lexical_score": 3.0242766072521494,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.9040976460331299,
+            "dense_score": 0.057377530845852495,
+            "lexical_score": 5.060572526933283,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9019352033050663,
+            "dense_score": 0.05753758601580812,
+            "lexical_score": 4.881917357386113,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.8928418803418803,
+            "dense_score": 0.06711560427009636,
+            "lexical_score": 4.189817306467011,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8909381663113005,
+            "dense_score": 0.10021947130290663,
+            "lexical_score": 1.6726824372174884,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.09103849740997616,
+            "lexical_score": 2.5452014825733547,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8857323232323232,
+            "dense_score": 0.10424564924531907,
+            "lexical_score": 1.385285184461173,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q24",
+        "category": "exact_term",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 1.0,
+            "dense_score": 0.1857175797224045,
+            "lexical_score": 19.293739368955887,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.11141719967126847,
+            "lexical_score": 13.356063073906565,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9462481962481962,
+            "dense_score": 0.09669875651597978,
+            "lexical_score": 7.167851796708554,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.1046228736639023,
+            "lexical_score": 3.1346327962102443,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9384615384615385,
+            "dense_score": 0.09965457916259765,
+            "lexical_score": 4.622545194588996,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9317863805970149,
+            "dense_score": 0.09438798725605012,
+            "lexical_score": 4.948318985089953,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.8943707191780821,
+            "dense_score": 0.10434984117746354,
+            "lexical_score": 1.8395773907333246,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.04073065668344497,
+            "lexical_score": 2.715839096452186,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8652917505030181,
+            "dense_score": 0.059131234884262085,
+            "lexical_score": 2.0588625141088888,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8652917505030181,
+            "dense_score": 0.04296689629554749,
+            "lexical_score": 2.261421857963418,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q25",
+        "category": "code_locator",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.25,
+        "ndcg_at_10": 0.43067655807339306,
+        "hits": [
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9841269841269842,
+            "dense_score": 0.3382938102903262,
+            "lexical_score": 15.36411144934289,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.2652674017162912,
+            "lexical_score": 15.702605978827766,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.2998501036112481,
+            "lexical_score": 13.840293467806207,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9621212121212123,
+            "dense_score": 0.18248422924321728,
+            "lexical_score": 19.666629822756903,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9384615384615385,
+            "dense_score": 0.1835929906528576,
+            "lexical_score": 11.113594054053493,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.26160000614629164,
+            "lexical_score": 6.999602259848478,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9041501976284585,
+            "dense_score": 0.13620894459302527,
+            "lexical_score": 10.660639720969987,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8909381663113005,
+            "dense_score": 0.17421175059815527,
+            "lexical_score": 6.860665364368763,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.14244246510359915,
+            "lexical_score": 5.444434369171711,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.015430334735372555,
+            "lexical_score": 8.145602152028289,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q26",
+        "category": "issue_join",
+        "recall_at_1": 0.3333333333333333,
+        "recall_at_3": 0.6666666666666666,
+        "recall_at_5": 0.6666666666666666,
+        "recall_at_10": 0.6666666666666666,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9708923176105698,
+        "hits": [
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 1.0,
+            "dense_score": 0.3136598008403435,
+            "lexical_score": 26.878203138294616,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.20238907877460033,
+            "lexical_score": 10.265356941000796,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.19062657099454583,
+            "lexical_score": 8.901226881290976,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.13381455050539498,
+            "lexical_score": 11.002560536994045,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9040976460331299,
+            "dense_score": 0.08416546693462182,
+            "lexical_score": 12.08833692496819,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.8988082340195017,
+            "dense_score": 0.14352439091833685,
+            "lexical_score": 6.60958566347097,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.11817161333362189,
+            "lexical_score": 8.583394073972043,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8870389884088514,
+            "dense_score": 0.09429373761101426,
+            "lexical_score": 9.623509824676194,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8832291666666667,
+            "dense_score": 0.1571736564343273,
+            "lexical_score": 4.799102250000004,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8799294312992942,
+            "dense_score": 0.1431229316330285,
+            "lexical_score": 5.317775298846711,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q27",
+        "category": "exact_term",
+        "recall_at_1": 0.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.3333333333333333,
+        "ndcg_at_10": 0.5,
+        "hits": [
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.9841269841269842,
+            "dense_score": 0.1450952503595814,
+            "lexical_score": 5.402706451007487,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.09589265687162041,
+            "lexical_score": 5.718084468917272,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9552238805970148,
+            "dense_score": 0.045022517011539004,
+            "lexical_score": 6.8954364610479155,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.087038824363418,
+            "lexical_score": 2.9970530718874997,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.953125,
+            "dense_score": 0.07770873553730345,
+            "lexical_score": 4.200134774885223,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.8928418803418803,
+            "dense_score": 0.062418779892758416,
+            "lexical_score": 0.6548589280026562,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.8842436974789916,
+            "dense_score": 0.021442251415002743,
+            "lexical_score": 0.9803703717211598,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8742833742833743,
+            "dense_score": 0.055470024596958864,
+            "lexical_score": 0.5117782547221915,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": -0.01680731628767916,
+            "lexical_score": 1.1957597025172286,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8618905472636815,
+            "dense_score": -0.03326410558611728,
+            "lexical_score": 2.044831200510652,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q28",
+        "category": "standard",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 1.0,
+            "dense_score": 0.44889188093591015,
+            "lexical_score": 25.617921831943672,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.2230259546653404,
+            "lexical_score": 10.99516177813478,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9404648956356736,
+            "dense_score": 0.16677931266494808,
+            "lexical_score": 11.16633048023531,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.1884678108566778,
+            "lexical_score": 5.39708847574687,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9244546498277841,
+            "dense_score": 0.17069363307414548,
+            "lexical_score": 7.282856989837618,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.900173611111111,
+            "dense_score": 0.18378647236583903,
+            "lexical_score": 4.23854816050363,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8916986769099445,
+            "dense_score": 0.17536964165865493,
+            "lexical_score": 4.662669389296671,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.8870389884088514,
+            "dense_score": 0.1789849025358399,
+            "lexical_score": 3.147548535197308,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.8799294312992942,
+            "dense_score": 0.11673153237765196,
+            "lexical_score": 5.685180843694141,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.8777432712215321,
+            "dense_score": 0.1447300803108239,
+            "lexical_score": 4.68659754209135,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q29",
+        "category": "citation",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 1.0,
+            "dense_score": 0.2705457866191864,
+            "lexical_score": 22.600626069543175,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.22469870150089266,
+            "lexical_score": 13.842754818325925,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.23917924612760544,
+            "lexical_score": 8.57628272220098,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9261559696342305,
+            "dense_score": 0.1511219307780266,
+            "lexical_score": 11.4850657172206,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.20225995033979416,
+            "lexical_score": 4.199092484533173,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.1660909652709961,
+            "lexical_score": 7.35031508202324,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.1685401976108551,
+            "lexical_score": 6.604113489135248,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8870389884088514,
+            "dense_score": 0.18226447701454163,
+            "lexical_score": 2.6968108134301887,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.05430753976106645,
+            "lexical_score": 4.457055960196345,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.8591549295774648,
+            "dense_score": 0.13491570353507995,
+            "lexical_score": 3.5625015847539228,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q30",
+        "category": "citation",
+        "recall_at_1": 0.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "ndcg_at_10": 0.6309297535714575,
+        "hits": [
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.9919354838709679,
+            "dense_score": 0.12091270863298452,
+            "lexical_score": 4.350414404879448,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9621212121212123,
+            "dense_score": 0.09979231675835187,
+            "lexical_score": 8.565019970862597,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.11988018415086846,
+            "lexical_score": 3.3642896049608826,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.11579215823332942,
+            "lexical_score": 3.412699172532265,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.10505253969359102,
+            "lexical_score": 4.0677834574558895,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9122767857142856,
+            "dense_score": 0.10721125707501374,
+            "lexical_score": 1.8182245957337786,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.8978354978354978,
+            "dense_score": 0.05805847477035799,
+            "lexical_score": 3.3373389095569053,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8840579710144927,
+            "dense_score": 0.06216698842984276,
+            "lexical_score": 1.957025046163577,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.040201512788983707,
+            "lexical_score": 2.372420534819055,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.860691573926868,
+            "dense_score": 0.0672292651507166,
+            "lexical_score": 0.3744415690497243,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q31",
+        "category": "agent_ablation",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9841269841269842,
+            "dense_score": 0.1557036871699288,
+            "lexical_score": 18.797781276723885,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9692307692307693,
+            "dense_score": 0.16135330079846233,
+            "lexical_score": 2.571780909125328,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.15623331062928741,
+            "lexical_score": 3.0986057854326194,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.09351060358961993,
+            "lexical_score": 7.047375542313191,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9313519813519814,
+            "dense_score": 0.08630800356054218,
+            "lexical_score": 2.492045945143069,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9155465949820788,
+            "dense_score": 0.019360077013371106,
+            "lexical_score": 8.253127216965357,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9037532923617206,
+            "dense_score": 0.04688644811619201,
+            "lexical_score": 2.4406979981907533,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.03360514144281325,
+            "lexical_score": 1.9653158219153264,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.05372637730715241,
+            "lexical_score": 0.6659843368837357,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.8652917505030181,
+            "dense_score": 0.031083494271525174,
+            "lexical_score": 1.160737468974018,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q32",
+        "category": "agent_ablation",
+        "recall_at_1": 0.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "ndcg_at_10": 0.6309297535714575,
+        "hits": [
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9841269841269842,
+            "dense_score": 0.15467206689222834,
+            "lexical_score": 5.693500797823031,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9765625000000001,
+            "dense_score": 0.07786877341958554,
+            "lexical_score": 8.658940706977518,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.1025978373985901,
+            "lexical_score": 3.5607582368952713,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9540566959921798,
+            "dense_score": 0.13336358240420446,
+            "lexical_score": 1.6477370365331192,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.02955593342039479,
+            "lexical_score": 2.48719720634155,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8972528661042612,
+            "dense_score": 0.027618409372559872,
+            "lexical_score": 1.6125527255170296,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.8870389884088514,
+            "dense_score": 0.06390214742560762,
+            "lexical_score": 0.6931067614400762,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8829611248966087,
+            "dense_score": -0.01642880340963891,
+            "lexical_score": 6.974269716585855,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.0,
+            "lexical_score": 1.5929083970777835,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8582251082251082,
+            "dense_score": 0.03550544627366013,
+            "lexical_score": 0.444768323576053,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q33",
+        "category": "agent_ablation",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9707632000615221,
+        "hits": [
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 1.0,
+            "dense_score": 0.25478785483971766,
+            "lexical_score": 17.157250416237286,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.19360077168726458,
+            "lexical_score": 9.243586874584848,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.18754579246476805,
+            "lexical_score": 11.14252829014124,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.11420804621344255,
+            "lexical_score": 3.3766281013904553,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.09764582108524644,
+            "lexical_score": 6.900412378371652,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.09863771835490534,
+            "lexical_score": 6.294393775967487,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9104477611940298,
+            "dense_score": 0.10389708091096711,
+            "lexical_score": 3.529654117414673,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8928418803418803,
+            "dense_score": 0.11295983748179264,
+            "lexical_score": 1.718439816633676,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8799294312992942,
+            "dense_score": 0.10909568865235544,
+            "lexical_score": 1.6628334392010002,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.8742833742833743,
+            "dense_score": 0.01554174868931604,
+            "lexical_score": 3.989554933601909,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q34",
+        "category": "failure",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9765625000000001,
+            "dense_score": 0.1516196078621887,
+            "lexical_score": 11.816143724144746,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.9692307692307693,
+            "dense_score": 0.17206180080324088,
+            "lexical_score": 6.1730166681388265,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9682539682539681,
+            "dense_score": 0.1579560117654845,
+            "lexical_score": 7.019983872650873,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.14803913188069112,
+            "lexical_score": 7.790698847904272,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9339644693782141,
+            "dense_score": 0.16782652113513905,
+            "lexical_score": 4.707530725297628,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.1105814692752963,
+            "lexical_score": 5.01471364710552,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8842436974789916,
+            "dense_score": 0.07308817482998063,
+            "lexical_score": 3.0891867455608555,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.8832291666666667,
+            "dense_score": 0.027524096026862392,
+            "lexical_score": 6.568141585949906,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8799294312992942,
+            "dense_score": 0.039862050617933936,
+            "lexical_score": 5.708790814528996,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.045899254437438135,
+            "lexical_score": 4.824301748609181,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q35",
+        "category": "reranker",
+        "recall_at_1": 0.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5,
+        "ndcg_at_10": 0.6309297535714575,
+        "hits": [
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9692307692307693,
+            "dense_score": 0.17516225947537412,
+            "lexical_score": 5.459662900014589,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9692307692307693,
+            "dense_score": 0.11877113709819087,
+            "lexical_score": 13.133534970071334,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9471593644679827,
+            "dense_score": 0.14473007737442334,
+            "lexical_score": 4.4656365431809535,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.938683712121212,
+            "dense_score": 0.12392039643428575,
+            "lexical_score": 4.873199718186756,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9097437030490498,
+            "dense_score": 0.04780611393775262,
+            "lexical_score": 9.146827621132388,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9077380952380951,
+            "dense_score": 0.051540611193993655,
+            "lexical_score": 6.394867016254074,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8972528661042612,
+            "dense_score": 0.09714729266420243,
+            "lexical_score": 3.6275252791550017,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8857323232323232,
+            "dense_score": 0.11346140108072533,
+            "lexical_score": 2.2959032429379116,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.8854427736006683,
+            "dense_score": 0.14301939143976045,
+            "lexical_score": 1.160737468974018,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8842436974789916,
+            "dense_score": 0.0824898368167385,
+            "lexical_score": 3.6991955149535825,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q36",
+        "category": "tooling",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 1.0,
+            "dense_score": 0.298481023488065,
+            "lexical_score": 30.359642954774955,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.12154310372239718,
+            "lexical_score": 10.53508996088378,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.9682539682539681,
+            "dense_score": 0.11321570933855246,
+            "lexical_score": 5.082453507420153,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.9242424242424242,
+            "dense_score": 0.03692744745786838,
+            "lexical_score": 3.4284403221481665,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9112597547380157,
+            "dense_score": 0.05710402518698262,
+            "lexical_score": 2.8194649073550444,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.9104477611940298,
+            "dense_score": 0.03396832820702807,
+            "lexical_score": 3.2930507245346177,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.900173611111111,
+            "dense_score": 0.01073347086885057,
+            "lexical_score": 4.876280928328825,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.8652917505030181,
+            "dense_score": 0.014433757663790533,
+            "lexical_score": 2.0674841352017004,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.860691573926868,
+            "dense_score": 0.0,
+            "lexical_score": 3.2698777367199536,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.8551960784313725,
+            "dense_score": 0.026261287451613654,
+            "lexical_score": 0.7519508846654751,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q37",
+        "category": "mcp",
+        "recall_at_1": 0.3333333333333333,
+        "recall_at_3": 0.3333333333333333,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.5863552102788964,
+        "hits": [
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.22033521038933396,
+            "lexical_score": 10.221955803416407,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.21246291818994187,
+            "lexical_score": 11.725169190662825,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9621212121212123,
+            "dense_score": 0.22632492385692377,
+            "lexical_score": 6.259997387893715,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.21476016639154033,
+            "lexical_score": 8.937264270102343,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9357142857142857,
+            "dense_score": 0.06611073438431483,
+            "lexical_score": 15.710898830454408,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.13083385714130244,
+            "lexical_score": 6.1428350816289745,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.8988082340195017,
+            "dense_score": 0.055103877006003235,
+            "lexical_score": 6.790916391248631,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.08263363042716676,
+            "lexical_score": 4.984744398702343,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.878834991708126,
+            "dense_score": 0.08795045778185537,
+            "lexical_score": 2.9963863129445985,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.8653346653346653,
+            "dense_score": 0.16112584685753562,
+            "lexical_score": 1.9403595618138834,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q38",
+        "category": "cost",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 1.0,
+            "dense_score": 0.335083117416959,
+            "lexical_score": 17.915761934924674,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.1384257131800116,
+            "lexical_score": 5.711323814466338,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.07589709204032269,
+            "lexical_score": 7.20004617347646,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.13333333451349388,
+            "lexical_score": 2.4868220730591895,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9313519813519814,
+            "dense_score": 0.0742781377589008,
+            "lexical_score": 3.2715275715437846,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.10188894012199075,
+            "lexical_score": 2.330964951899873,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.8916986769099445,
+            "dense_score": 0.023836564933373546,
+            "lexical_score": 3.0611116672408802,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.875152625152625,
+            "dense_score": -0.03481553134582488,
+            "lexical_score": 6.34478637656581,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.8716064502959787,
+            "dense_score": 0.04321134070761813,
+            "lexical_score": 1.953256007426874,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8714285714285713,
+            "dense_score": 0.026444292158943384,
+            "lexical_score": 2.059364110952732,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q39",
+        "category": "trace",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 1.0,
+            "dense_score": 0.3090575507008979,
+            "lexical_score": 25.05774946608143,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.12297746718720616,
+            "lexical_score": 10.8458616465824,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.9462481962481962,
+            "dense_score": 0.08439494428862337,
+            "lexical_score": 2.817690721453558,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9317863805970149,
+            "dense_score": 0.04256282736898443,
+            "lexical_score": 4.170272165912945,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9261559696342305,
+            "dense_score": 0.0391480159456469,
+            "lexical_score": 7.283363549570893,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.0800025595436186,
+            "lexical_score": 2.1086180944278547,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.04181209716659626,
+            "lexical_score": 3.9438105803842514,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8813929313929314,
+            "dense_score": 0.052851647538835055,
+            "lexical_score": 0.8922255034113036,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.878834991708126,
+            "dense_score": -0.015342910436476431,
+            "lexical_score": 2.1594753598460255,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.8777432712215321,
+            "dense_score": 0.0,
+            "lexical_score": 1.9857359761678957,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q40",
+        "category": "model_comparison",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 1.0,
+            "dense_score": 0.2753955266246288,
+            "lexical_score": 20.09829949068394,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.1678265059267051,
+            "lexical_score": 9.796474338502831,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9682539682539681,
+            "dense_score": 0.2084769571985064,
+            "lexical_score": 6.9803540387300735,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9384615384615385,
+            "dense_score": 0.16628219895896554,
+            "lexical_score": 6.3107394529029746,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.1183391302280185,
+            "lexical_score": 6.458261560880966,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.16514457616117437,
+            "lexical_score": 4.44811148723222,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9155465949820788,
+            "dense_score": 0.22037064605847528,
+            "lexical_score": 3.1766915443460153,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8842436974789916,
+            "dense_score": 0.08770580979597675,
+            "lexical_score": 4.279068688814297,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.8716064502959787,
+            "dense_score": 0.08449079248249679,
+            "lexical_score": 3.3503707844588453,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.8687878787878789,
+            "dense_score": 0.03559342493753516,
+            "lexical_score": 4.833152530801337,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q41",
+        "category": "multi_hop",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 1.0,
+            "dense_score": 0.3594627688908054,
+            "lexical_score": 25.202836285022986,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9838709677419354,
+            "dense_score": 0.17571530274945524,
+            "lexical_score": 10.959312380341142,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9533577533577533,
+            "dense_score": 0.12739392741985883,
+            "lexical_score": 5.514313426792532,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.0895921720491718,
+            "lexical_score": 6.533478530965608,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.09695723648358083,
+            "lexical_score": 4.648780092815699,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9077380952380951,
+            "dense_score": 0.0580802294865599,
+            "lexical_score": 10.47988980778636,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_86a25f791e8b40b4b9c7ee2837cddb9d",
+            "locator": "corpus.md#L87-L92",
+            "retrieval_score": 0.8978354978354978,
+            "dense_score": 0.07811665686819716,
+            "lexical_score": 5.266025199437726,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.8943707191780821,
+            "dense_score": 0.12364893458629549,
+            "lexical_score": 2.5292203030289286,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.08658090075913927,
+            "lexical_score": 3.5716534663024757,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.8813929313929314,
+            "dense_score": 0.11246430675284058,
+            "lexical_score": 2.19889860163657,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q42",
+        "category": "failure",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9335462966699876,
+        "hits": [
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 1.0,
+            "dense_score": 0.39405521081355055,
+            "lexical_score": 28.962451661937934,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.15484192638531097,
+            "lexical_score": 5.7775581284017665,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.14720510092564884,
+            "lexical_score": 7.363545812643408,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.938683712121212,
+            "dense_score": 0.09839655128045972,
+            "lexical_score": 4.28100425042349,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9384615384615385,
+            "dense_score": 0.10873206008608875,
+            "lexical_score": 4.032288627895301,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9317863805970149,
+            "dense_score": 0.12683657270296403,
+            "lexical_score": 2.6686273974369286,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8916986769099445,
+            "dense_score": 0.07102387435549964,
+            "lexical_score": 2.778055304109279,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.08087693169009164,
+            "lexical_score": 1.3602916832168654,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.8598372046853285,
+            "dense_score": 0.04444078822108945,
+            "lexical_score": 2.0561406588855364,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8565396700706991,
+            "dense_score": 0.0844310397439538,
+            "lexical_score": 0.910465552317855,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q43",
+        "category": "incremental",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.2,
+        "ndcg_at_10": 0.38685280723454163,
+        "hits": [
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.1792842883695111,
+            "lexical_score": 6.804764843598534,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9420289855072463,
+            "dense_score": 0.18273645237799663,
+            "lexical_score": 3.5249097435298458,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9384615384615385,
+            "dense_score": 0.10298572258053515,
+            "lexical_score": 5.612158842202002,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.9276497695852534,
+            "dense_score": 0.07102387435549964,
+            "lexical_score": 6.837787052814339,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.923611111111111,
+            "dense_score": 0.06567586846892508,
+            "lexical_score": 7.182446789475367,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9198412698412697,
+            "dense_score": 0.15484192638531097,
+            "lexical_score": 3.2697974371329606,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.08878560251792478,
+            "lexical_score": 5.2784401792424775,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9037532923617206,
+            "dense_score": 0.08178061162536047,
+            "lexical_score": 4.74914983807599,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8943707191780821,
+            "dense_score": 0.11820345564153531,
+            "lexical_score": 1.5506798780512479,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.8832291666666667,
+            "dense_score": 0.03235077267603666,
+            "lexical_score": 6.614436617561129,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q44",
+        "category": "web",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.9597743944434114,
+        "hits": [
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.9919354838709679,
+            "dense_score": 0.22020758706008578,
+            "lexical_score": 24.42456125647129,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9692307692307693,
+            "dense_score": 0.24000768258212282,
+            "lexical_score": 10.841177574958925,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.20496938607843795,
+            "lexical_score": 15.50222955142587,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.2195135285638766,
+            "lexical_score": 12.182501792377554,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.14245072267963466,
+            "lexical_score": 12.42959966795172,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9244546498277841,
+            "dense_score": 0.1965534085373735,
+            "lexical_score": 7.366028000575579,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.8978354978354978,
+            "dense_score": 0.13191121173775222,
+            "lexical_score": 9.753566350704983,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.8777432712215321,
+            "dense_score": 0.13212911884708764,
+            "lexical_score": 3.983701585398779,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.8598372046853285,
+            "dense_score": 0.055048188500896995,
+            "lexical_score": 4.0643798609617425,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8582251082251082,
+            "dense_score": 0.14896989579144554,
+            "lexical_score": 1.8839114956593692,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q45",
+        "category": "scale",
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 1.0,
+            "dense_score": 0.31245338916778564,
+            "lexical_score": 26.536460928386425,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.27688746750354765,
+            "lexical_score": 9.603812456938218,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9540566959921798,
+            "dense_score": 0.09285879135131836,
+            "lexical_score": 13.397038812571196,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9317863805970149,
+            "dense_score": 0.08137334883213045,
+            "lexical_score": 6.188050161805806,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9313519813519814,
+            "dense_score": 0.10377490520477295,
+            "lexical_score": 2.2845829306003314,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9077380952380951,
+            "dense_score": 0.1213559702038765,
+            "lexical_score": 1.1210495157015838,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d91e72c7ade14cdb9b2a06910d2daa9e",
+            "locator": "corpus.md#L46-L51",
+            "retrieval_score": 0.8928418803418803,
+            "dense_score": 0.029814240336418153,
+            "lexical_score": 2.300799655128826,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.8778782894736842,
+            "dense_score": 0.10660035908222198,
+            "lexical_score": 0.5383093717198402,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.8716064502959787,
+            "dense_score": 0.036514836549758914,
+            "lexical_score": 1.8453422432612845,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.015569978952407838,
+            "lexical_score": 2.2058953534028474,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q46",
+        "category": "insufficient",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.9692307692307693,
+            "dense_score": 0.07978752338020009,
+            "lexical_score": 10.783477578766153,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.09569350731166922,
+            "lexical_score": 3.363253642473406,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.0756349265194429,
+            "lexical_score": 4.175836656744819,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9326563958916899,
+            "dense_score": 0.08475794343753111,
+            "lexical_score": 2.4324477662761734,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9276497695852534,
+            "dense_score": 0.041638560936812175,
+            "lexical_score": 5.178623741287128,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.9250919117647058,
+            "dense_score": 0.06896551616134643,
+            "lexical_score": 3.963733624405344,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9178082191780822,
+            "dense_score": 0.09713989953036654,
+            "lexical_score": 1.1041423188472186,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8857323232323232,
+            "dense_score": 0.07824282247943723,
+            "lexical_score": 1.5736163274442605,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.8832291666666667,
+            "dense_score": 0.08461415924219702,
+            "lexical_score": 0.6860140073632685,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8777432712215321,
+            "dense_score": 0.05747814887565121,
+            "lexical_score": 2.24843238258811,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q47",
+        "category": "insufficient",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 1.0,
+            "dense_score": 0.1838447427466663,
+            "lexical_score": 7.570296925419544,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.13926212538329955,
+            "lexical_score": 2.372420534819055,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.961166253101737,
+            "dense_score": 0.06498440579051637,
+            "lexical_score": 5.3401356499998585,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9317863805970149,
+            "dense_score": 0.05761512094349083,
+            "lexical_score": 2.7612989655509517,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9061399647887324,
+            "dense_score": 0.10206207089069351,
+            "lexical_score": 1.0337420676008502,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.8978354978354978,
+            "dense_score": 0.04972451622781479,
+            "lexical_score": 1.8872579883449456,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8907936507936508,
+            "dense_score": 0.017303214147501446,
+            "lexical_score": 4.925189307624682,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_df4b9c19238c4eb0b5aa4e282f345803",
+            "locator": "corpus.md#L106-L111",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.0557086033191756,
+            "lexical_score": 1.3673108233297928,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8781068765534382,
+            "dense_score": 0.03202564362901217,
+            "lexical_score": 1.4960338609498913,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.8777432712215321,
+            "dense_score": 0.050280114056107904,
+            "lexical_score": 1.3272163646583233,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q48",
+        "category": "insufficient",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 1.0,
+            "dense_score": 0.2132007122039795,
+            "lexical_score": 8.78861685786756,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9684979838709676,
+            "dense_score": 0.193246990442276,
+            "lexical_score": 6.91889970486316,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9682539682539681,
+            "dense_score": 0.14990633726119995,
+            "lexical_score": 6.928024715909025,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1c6aa91d4b034f3cbbf49dc8b2165540",
+            "locator": "corpus.md#L12-L17",
+            "retrieval_score": 0.9313519813519814,
+            "dense_score": 0.10464092344045639,
+            "lexical_score": 5.734699331575986,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9215129486597001,
+            "dense_score": 0.04834937900304795,
+            "lexical_score": 7.11469795407378,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.10787198543548586,
+            "lexical_score": 4.060244797751604,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.9122767857142856,
+            "dense_score": 0.13018891215324402,
+            "lexical_score": 3.190864421432976,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9104477611940298,
+            "dense_score": 0.09460998177528382,
+            "lexical_score": 4.455704975181496,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.8742833742833743,
+            "dense_score": 0.014824986457824705,
+            "lexical_score": 4.460049110454216,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.8721405228758169,
+            "dense_score": 0.061905860900878906,
+            "lexical_score": 2.980514105250972,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q49",
+        "category": "insufficient",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 1.0,
+            "dense_score": 0.280333192639038,
+            "lexical_score": 14.89219321111268,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_4919a57080b1451aaf533b18aa539141",
+            "locator": "corpus.md#L70-L75",
+            "retrieval_score": 0.9760624679979518,
+            "dense_score": 0.21270890555689495,
+            "lexical_score": 13.013830044779922,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9606894841269841,
+            "dense_score": 0.17200698780863605,
+            "lexical_score": 7.82646936667187,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9384615384615385,
+            "dense_score": 0.12352112633693604,
+            "lexical_score": 7.641820065675387,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_d2c4ab2771304ca1b668ba2ba5532450",
+            "locator": "corpus.md#L40-L45",
+            "retrieval_score": 0.9215129486597001,
+            "dense_score": 0.05611031172207442,
+            "lexical_score": 14.036841497194256,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_b47d62505e5f4c8f89b5dc75d68b5ec8",
+            "locator": "corpus.md#L30-L34",
+            "retrieval_score": 0.9185914855072463,
+            "dense_score": 0.12712834308374946,
+            "lexical_score": 4.168967031765019,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_0b08bbe17744446a8d0ef0f1e2137bae",
+            "locator": "corpus.md#L52-L57",
+            "retrieval_score": 0.9173450927182271,
+            "dense_score": 0.09429373501705504,
+            "lexical_score": 5.24987539300483,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8905583972719522,
+            "dense_score": 0.06232980492350386,
+            "lexical_score": 5.031093631064268,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bc3e6aac339342e89be639ed4720ded1",
+            "locator": "corpus.md#L99-L105",
+            "retrieval_score": 0.8673860427591771,
+            "dense_score": 0.0838259500983079,
+            "lexical_score": 1.8750857350136738,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_644c837c70f94c8fb70e0697ac8d8041",
+            "locator": "corpus.md#L76-L80",
+            "retrieval_score": 0.866337630942788,
+            "dense_score": 0.06465081737106095,
+            "lexical_score": 2.0478791414719413,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      },
+      {
+        "id": "q50",
+        "category": "insufficient",
+        "recall_at_1": 0.0,
+        "recall_at_3": 0.0,
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_10": 1.0,
+        "hits": [
+          {
+            "chunk_id": "chk_05149ad4b18643f6948ddb913d575fa1",
+            "locator": "corpus.md#L18-L24",
+            "retrieval_score": 0.9765625000000001,
+            "dense_score": 0.08449078944081,
+            "lexical_score": 4.843789041663646,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_bb52f4cb9b1243d5ac060e91ab64839e",
+            "locator": "corpus.md#L35-L39",
+            "retrieval_score": 0.9765625000000001,
+            "dense_score": 0.06527912153722659,
+            "lexical_score": 8.132580854516243,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_a3237aeabefb47d2a5cacbcea31770d5",
+            "locator": "corpus.md#L58-L63",
+            "retrieval_score": 0.9540566959921798,
+            "dense_score": 0.0830513263750921,
+            "lexical_score": 4.2926314742262415,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fdadd9e9e2d241f2a2be365c058b2344",
+            "locator": "corpus.md#L93-L98",
+            "retrieval_score": 0.9471593644679827,
+            "dense_score": 0.04589925443743814,
+            "lexical_score": 6.931965508382893,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_140ad36091b849fe9113f1dfb9d4ee2a",
+            "locator": "corpus.md#L112-L116",
+            "retrieval_score": 0.939350864723999,
+            "dense_score": 0.07972410123586787,
+            "lexical_score": 3.691573287490389,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_6db119017e104e2384eeedb8e4565310",
+            "locator": "corpus.md#L25-L29",
+            "retrieval_score": 0.9177601809954751,
+            "dense_score": 0.06052275377556857,
+            "lexical_score": 1.6831804265220232,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_c39cc94f99834682a89c01966288339d",
+            "locator": "corpus.md#L64-L69",
+            "retrieval_score": 0.9112597547380157,
+            "dense_score": 0.02629758449511522,
+            "lexical_score": 4.328387131142791,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_9c1ec63d88354040a3f699197f7babd3",
+            "locator": "corpus.md#L81-L86",
+            "retrieval_score": 0.8781068765534382,
+            "dense_score": 0.027524096026862392,
+            "lexical_score": 1.1378653774107355,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_fb75a95e0f254e39bab29b26a5ebcb6d",
+            "locator": "corpus.md#L7-L11",
+            "retrieval_score": 0.8716064502959787,
+            "dense_score": 0.015891043224697074,
+            "lexical_score": 1.3050129416917073,
+            "fusion_method": "weighted_rrf"
+          },
+          {
+            "chunk_id": "chk_1de63d79ca56485da9ca451653f30663",
+            "locator": "corpus.md#L1-L6",
+            "retrieval_score": 0.8702029334940726,
+            "dense_score": -0.043852895772928,
+            "lexical_score": 5.501026177584624,
+            "fusion_method": "weighted_rrf"
+          }
+        ]
+      }
+    ]
+  },
+  "naive": {
+    "questions": 50,
+    "completed": 50,
+    "correctness": 0.7673189584805051,
+    "citation_precision": 1.0,
+    "citation_faithfulness": 1.0,
+    "citation_recall": 0.8433333333333334,
+    "evidence_citation_coverage": 0.8333333333333334,
+    "recall_at_k": 0.8433333333333334,
+    "tool_accuracy": 1.0,
+    "average_steps": 5,
+    "average_tool_calls": 1,
+    "average_retrieval_rounds": 1,
+    "rewrite_trigger_rate": 0,
+    "rewrite_success_rate": 0.0,
+    "average_rewrite_quality_gain": 0,
+    "abstention_accuracy": 0.82,
+    "average_retrieval_context_tokens": 240.58,
+    "total_estimated_cost_usd": 0.0,
+    "average_tokens": 210.2,
+    "average_reranker_latency_ms": 0.0033133200304291677,
+    "p50_latency_ms": 38.62859499986371,
+    "p95_latency_ms": 42.1662489998198
+  },
+  "fixed_retrieval": {
+    "questions": 50,
+    "completed": 50,
+    "correctness": 0.7641825948441415,
+    "citation_precision": 1.0,
+    "citation_faithfulness": 1.0,
+    "citation_recall": 0.8633333333333333,
+    "evidence_citation_coverage": 0.8333333333333334,
+    "recall_at_k": 0.8633333333333333,
+    "tool_accuracy": 1.0,
+    "average_steps": 8,
+    "average_tool_calls": 5.84,
+    "average_retrieval_rounds": 2,
+    "rewrite_trigger_rate": 1,
+    "rewrite_success_rate": 0.78,
+    "average_rewrite_quality_gain": -0.0006699999999999988,
+    "abstention_accuracy": 0.82,
+    "average_retrieval_context_tokens": 240.88,
+    "total_estimated_cost_usd": 0.0,
+    "average_tokens": 209.9,
+    "average_reranker_latency_ms": 0.010724560033850139,
+    "p50_latency_ms": 66.27871550062991,
+    "p95_latency_ms": 73.83218100039812
+  },
+  "agentic": {
+    "questions": 50,
+    "completed": 50,
+    "correctness": 0.8201189584805052,
+    "citation_precision": 0.98,
+    "citation_faithfulness": 0.98,
+    "citation_recall": 0.9233333333333333,
+    "evidence_citation_coverage": 0.75,
+    "recall_at_k": 0.9233333333333333,
+    "tool_accuracy": 1.0,
+    "average_steps": 6.88,
+    "average_tool_calls": 4.2,
+    "average_retrieval_rounds": 1.44,
+    "rewrite_trigger_rate": 0.22,
+    "rewrite_success_rate": 0.0,
+    "average_rewrite_quality_gain": 6.30808536718839e-19,
+    "abstention_accuracy": 0.86,
+    "average_retrieval_context_tokens": 218.5,
+    "total_estimated_cost_usd": 0.0,
+    "average_tokens": 190.48,
+    "average_reranker_latency_ms": 0.004721559889730997,
+    "p50_latency_ms": 46.49733799988098,
+    "p95_latency_ms": 85.74667399989266
+  }
+}

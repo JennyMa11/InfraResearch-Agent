@@ -41,6 +41,7 @@ export default function App() {
   const [events, setEvents] = useState<TraceEvent[]>([]);
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
   const [githubUrl, setGithubUrl] = useState("");
+  const [webUrl, setWebUrl] = useState("");
   const [includeIssues, setIncludeIssues] = useState(false);
   const [busy, setBusy] = useState(false);
   const [activeSourceId, setActiveSourceId] = useState<string | null>(null);
@@ -176,6 +177,23 @@ export default function App() {
       await refreshSources();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "仓库导入失败");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function addWebPage(event: FormEvent) {
+    event.preventDefault();
+    if (!webUrl.trim()) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      await api.addUrl(webUrl.trim());
+      setWebUrl("");
+      setMessage("网页已进入索引队列。");
+      await refreshSources();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "网页导入失败");
     } finally {
       setBusy(false);
     }
@@ -433,6 +451,19 @@ export default function App() {
                   连接公开仓库
                 </button>
               </form>
+              <div className="or"><span>或</span></div>
+              <form onSubmit={addWebPage}>
+                <input
+                  type="url"
+                  value={webUrl}
+                  onChange={(event) => setWebUrl(event.target.value)}
+                  placeholder="https://example.com/technical-article"
+                  aria-label="网页 URL"
+                />
+                <button className="button button--secondary" disabled={busy} type="submit">
+                  导入公开网页
+                </button>
+              </form>
             </section>
           </aside>
 
@@ -448,14 +479,18 @@ export default function App() {
               />
               <div className="question-card__footer">
                 <div className="segmented" aria-label="RAG 模式">
-                  {(["agentic", "naive"] as RunMode[]).map((item) => (
+              {(["agentic", "fixed_retrieval", "naive"] as RunMode[]).map((item) => (
                     <button
                       key={item}
                       type="button"
                       className={mode === item ? "active" : ""}
                       onClick={() => setMode(item)}
                     >
-                      {item === "agentic" ? "Agentic RAG" : "Naive RAG"}
+                      {item === "agentic"
+                        ? "Agentic RAG"
+                        : item === "fixed_retrieval"
+                          ? "固定二次检索"
+                          : "Naive RAG"}
                     </button>
                   ))}
                 </div>

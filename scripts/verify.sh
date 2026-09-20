@@ -159,7 +159,7 @@ run_evaluation() {
   evaluation_dir="$(mktemp -d /tmp/infraresearch-evaluation.XXXXXX)"
   (
     cd "$project_dir"
-    run_stage "20-question dual baseline evaluation" env UV_CACHE_DIR="$uv_cache_dir" \
+    run_stage "50-question retrieval and three-policy evaluation" env UV_CACHE_DIR="$uv_cache_dir" \
       uv run --project backend python scripts/evaluate.py --output-dir "$evaluation_dir"
   )
   rm -rf "$evaluation_dir"

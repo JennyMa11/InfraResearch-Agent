@@ -57,7 +57,7 @@ scripts/
   verify.sh        分阶段验收编排
   smoke_api.py     隔离 API/worker 的真实 HTTP 验收
   verify_gpu.py    vLLM、长上下文和 prefix-cache 探针
-  evaluate.py      固定 20 题双基线评测
+  evaluate.py      固定 50 题检索与三种 Agent 策略评测
 ```
 
 ## 持久任务生命周期

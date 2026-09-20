@@ -1,4 +1,4 @@
-export type RunMode = "naive" | "agentic";
+export type RunMode = "naive" | "fixed_retrieval" | "agentic";
 
 export interface Source {
   id: string;
@@ -70,6 +70,9 @@ export interface ToolCall {
   duration_ms: number;
   status: string;
   error: string | null;
+  error_type: string | null;
+  retryable: boolean;
+  attempts: number;
 }
 
 export interface RunMetrics {
@@ -77,9 +80,13 @@ export interface RunMetrics {
   ttft_ms: number | null;
   prompt_tokens: number;
   completion_tokens: number;
+  retrieval_context_tokens: number;
+  estimated_cost_usd: number;
   tool_calls: number;
   agent_steps: number;
   retrieval_rounds: number;
+  rewrite_attempts: number;
+  rewrite_successes: number;
   prefix_cache_hits: number | null;
   prefix_cache_queries: number | null;
   kv_cache_usage: number | null;
@@ -111,6 +118,7 @@ export interface ResearchRun {
     marker: string;
     claim: string;
     valid: boolean;
+    support_score: number;
   }>;
   events: TraceEvent[];
   tool_calls: ToolCall[];

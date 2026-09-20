@@ -46,8 +46,13 @@ args=(
   --max-model-len "${INFRARESEARCH_VLLM_MAX_MODEL_LEN:-8192}"
   --max-num-seqs "${INFRARESEARCH_VLLM_MAX_NUM_SEQS:-1}"
   --gpu-memory-utilization "${INFRARESEARCH_VLLM_GPU_MEMORY_UTILIZATION:-0.75}"
-  --enable-prefix-caching
 )
+
+if [[ "${INFRARESEARCH_VLLM_PREFIX_CACHING:-1}" == "1" ]]; then
+  args+=(--enable-prefix-caching)
+else
+  args+=(--no-enable-prefix-caching)
+fi
 
 if [[ "${INFRARESEARCH_VLLM_ENFORCE_EAGER:-1}" == "1" ]]; then
   args+=(--enforce-eager)

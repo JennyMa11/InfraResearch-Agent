@@ -20,6 +20,8 @@ class SourceType(StrEnum):
     FILE = "file"
     GITHUB = "github"
     ISSUE = "issue"
+    WEB = "web"
+    WEB_SEARCH = "web_search"
 
 
 class Status(StrEnum):
@@ -139,6 +141,9 @@ class ToolCall(Base):
     duration_ms: Mapped[float] = mapped_column(Float, default=0)
     status: Mapped[str] = mapped_column(String(20), default=Status.COMPLETED)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error_type: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    retryable: Mapped[int] = mapped_column(Integer, default=0)
+    attempts: Mapped[int] = mapped_column(Integer, default=1)
 
 
 class EvidenceRecord(Base):
@@ -165,3 +170,4 @@ class CitationRecord(Base):
     marker: Mapped[str] = mapped_column(String(20))
     claim: Mapped[str] = mapped_column(Text)
     valid: Mapped[int] = mapped_column(Integer, default=1)
+    support_score: Mapped[float] = mapped_column(Float, default=0)

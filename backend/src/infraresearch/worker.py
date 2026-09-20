@@ -5,6 +5,7 @@ import os
 import signal
 import socket
 import threading
+import time
 from contextlib import AbstractContextManager
 from datetime import UTC, datetime
 from pathlib import Path
@@ -12,6 +13,7 @@ from types import FrameType
 from uuid import uuid4
 
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError
 
 from .agent import ResearchAgent
 from .config import Settings, get_settings
@@ -66,13 +68,18 @@ class JobControl(AbstractContextManager["JobControl"]):
     def checkpoint(self) -> None:
         if self._cancelled.is_set():
             raise TaskCancelled("task cancellation requested")
-        with SessionLocal() as session:
-            status = session.scalar(select(Job.status).where(Job.id == self.job_id))
-            if status in {Status.CANCEL_REQUESTED, Status.CANCELLED}:
-                self._cancelled.set()
-                raise TaskCancelled("task cancellation requested")
-            if status != Status.RUNNING:
-                raise TaskCancelled("task lease is no longer active")
+        try:
+            with SessionLocal() as session:
+                status = session.scalar(select(Job.status).where(Job.id == self.job_id))
+                if status in {Status.CANCEL_REQUESTED, Status.CANCELLED}:
+                    self._cancelled.set()
+                    raise TaskCancelled("task cancellation requested")
+                if status != Status.RUNNING:
+                    raise TaskCancelled("task lease is no longer active")
+        except OperationalError:
+            # A long SQLite write transaction can briefly block this authoritative
+            # status read. Heartbeats use the same retry-at-next-checkpoint policy.
+            return
 
 
 class Worker:
@@ -103,6 +110,8 @@ class Worker:
             if not job:
                 return False
             job_id = job.id
+        if self.settings.worker_fault_pause_after_claim_seconds > 0:
+            time.sleep(self.settings.worker_fault_pause_after_claim_seconds)
         self._execute(job_id)
         return True
 
@@ -174,6 +183,13 @@ class Worker:
                 ingestion.id,
                 revision=metadata.get("requested_revision"),
                 include_issues=bool(metadata.get("include_issues", False)),
+                cancel_check=control.checkpoint,
+            )
+        elif source.kind == "web":
+            self.ingestion.ingest_url(
+                session,
+                source.id,
+                ingestion.id,
                 cancel_check=control.checkpoint,
             )
         else:

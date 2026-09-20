@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import time
 from typing import Any
@@ -82,9 +83,17 @@ def stream_completion(
 
 
 def verify_gpu_is_visible() -> str:
+    nvidia_smi = shutil.which("nvidia-smi")
+    if nvidia_smi is None:
+        # WSL exposes the Windows driver utility here without always adding it
+        # to PATH. Treat that as a normal GPU installation, not a failed probe.
+        wsl_nvidia_smi = "/usr/lib/wsl/lib/nvidia-smi"
+        if os.access(wsl_nvidia_smi, os.X_OK):
+            nvidia_smi = wsl_nvidia_smi
+    require(nvidia_smi is not None, "nvidia-smi was not found in PATH or the WSL driver path")
     result = subprocess.run(
         [
-            "nvidia-smi",
+            nvidia_smi,
             "--query-gpu=index,name,memory.total,memory.used,driver_version",
             "--format=csv,noheader",
         ],

@@ -164,3 +164,50 @@ async def test_mcp_client_handles_empty_results_and_internal_errors(tmp_path) ->
         )
         assert failed.is_error is True
         assert "Error executing tool" in failed.content[0].text
+
+
+async def test_mcp_client_reads_complete_issue_resource(tmp_path) -> None:
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    with factory() as session:
+        source = Source(
+            kind="issue",
+            name="owner/repo issues",
+            uri="https://github.com/owner/repo/issues",
+            status=Status.COMPLETED,
+            metadata_json=json.dumps({"parent_repository": "owner/repo"}),
+        )
+        session.add(source)
+        session.flush()
+        session.add(
+            Chunk(
+                source_id=source.id,
+                content="# Cache leak\n\nKV blocks remain allocated.",
+                locator="owner/repo#issue-42 https://github.com/owner/repo/issues/42",
+                metadata_json=json.dumps(
+                    {
+                        "category": "issue",
+                        "number": 42,
+                        "url": "https://github.com/owner/repo/issues/42",
+                        "updated_at": "2026-09-20T00:00:00Z",
+                    }
+                ),
+                content_hash=hashlib.sha256(b"issue-42").hexdigest(),
+            )
+        )
+        session.commit()
+        source_id = source.id
+
+    settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
+    server = create_mcp_server(settings, session_factory=factory, index=VectorIndex(settings))
+    async with Client(server) as client:
+        resource = await client.read_resource(f"infraresearch://issue/{source_id}/42")
+        body = json.loads(resource.contents[0].text)
+        assert body["number"] == 42
+        assert body["repository"] == "owner/repo"
+        assert "KV blocks" in body["content"]

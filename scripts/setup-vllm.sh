@@ -9,8 +9,12 @@ fi
 python_bin="${INFRARESEARCH_VLLM_PYTHON:-python3}"
 vllm_version="${INFRARESEARCH_VLLM_VERSION:-0.23.0}"
 
-if [[ ! -x "$venv_dir/bin/python" ]]; then
-  "$python_bin" -m venv "$venv_dir"
+if [[ ! -x "$venv_dir/bin/python" ]] || ! "$venv_dir/bin/python" -m pip --version >/dev/null 2>&1; then
+  if command -v uv >/dev/null 2>&1; then
+    uv venv --python "$python_bin" --clear --seed "$venv_dir"
+  else
+    "$python_bin" -m venv "$venv_dir"
+  fi
 fi
 
 "$venv_dir/bin/python" -m pip install --upgrade pip

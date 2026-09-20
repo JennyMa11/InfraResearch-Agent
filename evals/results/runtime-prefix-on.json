@@ -1,0 +1,134 @@
+{
+  "generated_at": "2026-09-20T07:04:44.097573+00:00",
+  "base_url": "http://127.0.0.1:8010",
+  "health": {
+    "status": "ok",
+    "version": "0.2.0",
+    "vector_backend": "qdrant_local",
+    "embedding_backend": "fastembed",
+    "embedding_model": "intfloat/multilingual-e5-small",
+    "reranker_backend": "identity",
+    "reranker_model": "BAAI/bge-reranker-base",
+    "candidate_k": 20,
+    "evidence_k": 6
+  },
+  "configuration": {
+    "mode": "agentic",
+    "question": "Explain prefix caching and its effect on output.",
+    "prefix_repeats": 5,
+    "concurrency": [
+      1,
+      4,
+      8,
+      16
+    ],
+    "requests_per_level": 16,
+    "poll_interval_seconds": 0.25,
+    "http_timeout_seconds": 60,
+    "prefix_cache_mode": "on"
+  },
+  "prefix_cache_summary": {
+    "first_ttft_ms": 884.8606629999267,
+    "warm_median_ttft_ms": 49.71775599915418,
+    "warm_p95_ttft_ms": 56.925253998997505,
+    "prefix_cache_hits_delta": 2688,
+    "prefix_cache_queries_delta": 2716
+  },
+  "prefix_cache": [
+    {
+      "run_id": "run_986843c20db24d45b4cae426319b3c34",
+      "ttft_ms": 884.8606629999267,
+      "total_latency_ms": 3146.496445999219,
+      "client_latency_ms": 3535.2876699998887,
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 679,
+      "provider": "openai_compatible"
+    },
+    {
+      "run_id": "run_d1b1964b5527483fb385b83d58f0b19f",
+      "ttft_ms": 49.994217999483226,
+      "total_latency_ms": 2375.6551779988513,
+      "client_latency_ms": 2610.816607000743,
+      "prefix_cache_hits": 672,
+      "prefix_cache_queries": 1358,
+      "provider": "openai_compatible"
+    },
+    {
+      "run_id": "run_c8bc80d6adb143edb9560d1a6baaa9f6",
+      "ttft_ms": 49.44129399882513,
+      "total_latency_ms": 2077.6243079999404,
+      "client_latency_ms": 2527.7886489984667,
+      "prefix_cache_hits": 1344,
+      "prefix_cache_queries": 2037,
+      "provider": "openai_compatible"
+    },
+    {
+      "run_id": "run_886855f5f312405e8e3c520f5af020bb",
+      "ttft_ms": 56.925253998997505,
+      "total_latency_ms": 2316.4204950007843,
+      "client_latency_ms": 2562.3603990006814,
+      "prefix_cache_hits": 2016,
+      "prefix_cache_queries": 2716,
+      "provider": "openai_compatible"
+    },
+    {
+      "run_id": "run_f1399cd20b72412a93f51bd0f5ae0cdb",
+      "ttft_ms": 44.656378999206936,
+      "total_latency_ms": 2107.1421569995437,
+      "client_latency_ms": 2457.5246720014547,
+      "prefix_cache_hits": 2688,
+      "prefix_cache_queries": 3395,
+      "provider": "openai_compatible"
+    }
+  ],
+  "concurrency": [
+    {
+      "concurrency": 1,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "errors": [],
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 0.41231735629671634,
+      "p50_ms": 2454.7163735005597,
+      "p95_ms": 2619.097550999868,
+      "wall_seconds": 38.80506060600055
+    },
+    {
+      "concurrency": 4,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "errors": [],
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 0.4555164865714239,
+      "p50_ms": 8755.365762500332,
+      "p95_ms": 9194.548612998915,
+      "wall_seconds": 35.12496357800046
+    },
+    {
+      "concurrency": 8,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "errors": [],
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 0.4578821022369204,
+      "p50_ms": 16366.497730500669,
+      "p95_ms": 19243.1962440005,
+      "wall_seconds": 34.9434929250001
+    },
+    {
+      "concurrency": 16,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "errors": [],
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 0.4453421032897782,
+      "p50_ms": 19509.74882399987,
+      "p95_ms": 35923.957983000946,
+      "wall_seconds": 35.927436193000176
+    }
+  ]
+}

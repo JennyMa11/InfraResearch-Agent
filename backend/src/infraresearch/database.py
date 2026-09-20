@@ -17,6 +17,8 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     _migrate_evidence_scores()
+    _migrate_citation_scores()
+    _migrate_tool_call_errors()
 
 
 def _migrate_evidence_scores(bind: Engine = engine) -> None:
@@ -33,6 +35,34 @@ def _migrate_evidence_scores(bind: Engine = engine) -> None:
             connection.execute(text("UPDATE evidence SET retrieval_score = score"))
         if "rerank_score" not in columns:
             connection.execute(text("ALTER TABLE evidence ADD COLUMN rerank_score FLOAT"))
+
+
+def _migrate_citation_scores(bind: Engine = engine) -> None:
+    if bind.dialect.name != "sqlite" or "citations" not in inspect(bind).get_table_names():
+        return
+    columns = {column["name"] for column in inspect(bind).get_columns("citations")}
+    if "support_score" not in columns:
+        with bind.begin() as connection:
+            connection.execute(
+                text("ALTER TABLE citations ADD COLUMN support_score FLOAT NOT NULL DEFAULT 0")
+            )
+
+
+def _migrate_tool_call_errors(bind: Engine = engine) -> None:
+    if bind.dialect.name != "sqlite" or "tool_calls" not in inspect(bind).get_table_names():
+        return
+    columns = {column["name"] for column in inspect(bind).get_columns("tool_calls")}
+    with bind.begin() as connection:
+        if "error_type" not in columns:
+            connection.execute(text("ALTER TABLE tool_calls ADD COLUMN error_type VARCHAR(40)"))
+        if "retryable" not in columns:
+            connection.execute(
+                text("ALTER TABLE tool_calls ADD COLUMN retryable INTEGER NOT NULL DEFAULT 0")
+            )
+        if "attempts" not in columns:
+            connection.execute(
+                text("ALTER TABLE tool_calls ADD COLUMN attempts INTEGER NOT NULL DEFAULT 1")
+            )
 
 
 async def get_db() -> AsyncGenerator[Session, None]:

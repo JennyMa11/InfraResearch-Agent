@@ -95,7 +95,7 @@ class LLMProvider:
         )
         payload = {
             "model": self.settings.llm_model,
-            "temperature": 0.1,
+            "temperature": self.settings.llm_temperature,
             "stream": True,
             "stream_options": {"include_usage": True},
             "messages": [

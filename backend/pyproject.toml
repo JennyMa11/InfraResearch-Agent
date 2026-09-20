@@ -1,6 +1,6 @@
 [project]
 name = "infraresearch"
-version = "0.2.0"
+version = "0.3.0"
 description = "Explainable agentic RAG for infrastructure research"
 requires-python = ">=3.12"
 dependencies = [
@@ -17,6 +17,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+ocr = [
+  "pymupdf>=1.24,<2",
+  "pytesseract>=0.3.13,<1",
+  "pillow>=11,<13",
+]
 dev = [
   "pytest>=8.3,<9",
   "pytest-asyncio>=0.24,<1",

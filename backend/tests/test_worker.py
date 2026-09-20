@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import create_engine, select
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 
 from infraresearch.config import Settings
@@ -123,6 +124,21 @@ def test_running_job_observes_cooperative_cancellation(monkeypatch, tmp_path) ->
             session.commit()
         with pytest.raises(TaskCancelled):
             control.checkpoint()
+
+
+def test_checkpoint_retries_after_transient_sqlite_lock(monkeypatch, tmp_path) -> None:
+    settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
+
+    class LockedSession:
+        def __enter__(self):
+            raise OperationalError("SELECT status", {}, Exception("database is locked"))
+
+        def __exit__(self, *args):
+            return None
+
+    monkeypatch.setattr("infraresearch.worker.SessionLocal", LockedSession)
+
+    JobControl("job-test", settings).checkpoint()
 
 
 def test_worker_completes_persisted_job_idempotently(monkeypatch, tmp_path) -> None:

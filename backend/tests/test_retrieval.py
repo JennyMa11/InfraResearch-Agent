@@ -6,7 +6,7 @@ from sqlalchemy import delete
 
 from infraresearch.config import Settings
 from infraresearch.models import Chunk, Source, Status
-from infraresearch.retrieval import HashEncoder, VectorIndex, create_encoder
+from infraresearch.retrieval import HashEncoder, SearchHit, VectorIndex, create_encoder
 
 
 def add_chunk(session, content: str, locator: str, category: str = "docs") -> Chunk:
@@ -135,3 +135,28 @@ def test_qdrant_synchronizes_from_sqlite_after_collection_rebuild(session, tmp_p
     assert hits[0].chunk.id == chunk.id
     assert index._client.count(collection_name=index.collection, exact=True).count == 1
     index._client.close()
+
+
+def test_weighted_rrf_preserves_dense_and_lexical_scores(session, tmp_path) -> None:
+    first = add_chunk(session, "dense result", "dense.md#L1")
+    second = add_chunk(session, "lexical result", "lexical.md#L1")
+    index = VectorIndex(
+        Settings(
+            data_dir=tmp_path,
+            vector_backend="sqlite",
+            hybrid_rrf_k=10,
+            hybrid_dense_weight=1,
+            hybrid_lexical_weight=2,
+        )
+    )
+
+    fused = index._rrf_fuse(
+        [SearchHit(first, 0.9), SearchHit(second, 0.8)],
+        [SearchHit(second, 4.0), SearchHit(first, 2.0)],
+        top_k=2,
+    )
+
+    assert [hit.chunk.id for hit in fused] == [second.id, first.id]
+    assert fused[0].dense_score == 0.8
+    assert fused[0].lexical_score == 4.0
+    assert fused[0].fusion_method == "weighted_rrf"

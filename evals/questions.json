@@ -100,6 +100,10 @@
     "question": "GPU 不可用时如何降级？",
     "reference_answer": "可以切换 Ollama 或其他兼容端点；离线演示使用确定性抽取 provider。",
     "required_evidence": ["抽取", "兼容端点"],
+    "answer_rubric": [
+      ["Ollama", "兼容端点", "OpenAI-compatible 端点"],
+      ["确定性抽取 provider", "extractive provider", "离线抽取 provider"]
+    ],
     "expected_sources": ["docs"],
     "expected_tools": ["semantic_document_search"]
   },
@@ -132,6 +136,11 @@
     "question": "Evidence Grader 评价哪些维度？",
     "reference_answer": "评价相关性、问题覆盖度和来源多样性。",
     "required_evidence": ["相关性", "覆盖度", "来源多样性"],
+    "answer_rubric": [
+      ["相关性"],
+      ["问题覆盖度", "问题覆盖"],
+      ["来源多样性", "多来源"]
+    ],
     "expected_sources": ["docs"],
     "expected_tools": ["semantic_document_search"]
   },
@@ -158,5 +167,290 @@
     "required_evidence": ["可复现", "预设结论"],
     "expected_sources": ["docs"],
     "expected_tools": ["semantic_document_search"]
+  },
+  {
+    "id": "q21",
+    "question": "扫描 PDF 没有文本层时如何保留可追溯证据？",
+    "reference_answer": "字符过少时触发 OCR fallback，并保留 page、bbox 和 OCR 引擎 metadata。",
+    "required_evidence": ["OCR fallback", "bbox", "page"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "multi_hop"
+  },
+  {
+    "id": "q22",
+    "question": "双栏论文如何恢复顺序并按章节切块？",
+    "reference_answer": "布局解析按左栏再右栏恢复 reading order，Section-aware chunking 保留章节 metadata。",
+    "required_evidence": ["左栏再右栏", "reading order", "section metadata"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "multi_hop"
+  },
+  {
+    "id": "q23",
+    "question": "语义搜索和字面匹配怎么一起用？",
+    "reference_answer": "分别运行 Dense Retrieval 和 BM25，再用 weighted RRF 按排名融合。",
+    "required_evidence": ["Dense Retrieval", "BM25", "weighted RRF"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "fuzzy"
+  },
+  {
+    "id": "q24",
+    "question": "weighted RRF 为什么不直接相加原始分数？",
+    "reference_answer": "RRF 使用名次融合不可比较的 Dense 与 BM25 分数，并保留各通道分数。",
+    "required_evidence": ["名次", "不可比较", "fusion score"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "exact_term"
+  },
+  {
+    "id": "q25",
+    "question": "请定位源码检索中函数和类的最小证据单元。",
+    "reference_answer": "Symbol 索引按函数、类和方法建立 locator，代码按 class/function 切分。",
+    "required_evidence": ["Symbol 索引", "locator", "class/function"],
+    "expected_sources": ["code"],
+    "expected_tools": ["code_keyword_search"],
+    "category": "code_locator"
+  },
+  {
+    "id": "q26",
+    "question": "代码实现和相关 Issue 需要联合检索时 Agent 会调用什么？",
+    "reference_answer": "Agent 通过统一 Tool Registry 联合代码与 Issue 工具，并把结果合并成 Evidence。",
+    "required_evidence": ["Tool Registry", "Issue", "Evidence"],
+    "expected_sources": ["code", "issues"],
+    "expected_tools": ["code_keyword_search", "github_issue_search"],
+    "category": "issue_join"
+  },
+  {
+    "id": "q27",
+    "question": "Recall@K、MRR 与 nDCG 分别强调什么？",
+    "reference_answer": "Recall@K 看不同深度的召回，MRR 看首个相关结果，nDCG 看等级与位置。",
+    "required_evidence": ["不同深度", "倒数排名", "相关性等级"],
+    "answer_rubric": [
+      ["不同深度", "不同 K", "Recall@K"],
+      ["倒数排名", "首个相关结果", "第一个相关结果"],
+      ["相关性等级", "等级与位置", "等级和位置"]
+    ],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "exact_term"
+  },
+  {
+    "id": "q28",
+    "question": "为什么检索和最终答案必须分开评测？",
+    "reference_answer": "分开评测可避免生成模型掩盖召回问题。",
+    "required_evidence": ["生成模型", "掩盖", "召回问题"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "standard"
+  },
+  {
+    "id": "q29",
+    "question": "一个引用 marker 存在是否足以证明 claim 忠实？",
+    "reference_answer": "不够；Faithfulness 要求 claim 内容由对应 Evidence 支持。",
+    "required_evidence": ["并不足够", "claim", "Evidence 支持"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "citation"
+  },
+  {
+    "id": "q30",
+    "question": "Citation Precision 和 Recall 的区别是什么？",
+    "reference_answer": "Precision 衡量生成引用的有效比例，Recall 衡量所需证据被引用的比例。",
+    "required_evidence": ["多少有效", "所需证据", "被引用"],
+    "answer_rubric": [
+      ["多少有效", "有效比例", "引用精确率"],
+      ["所需证据"],
+      ["被引用", "引用比例"]
+    ],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "citation"
+  },
+  {
+    "id": "q31",
+    "question": "三种 Agent 决策基线如何组成消融？",
+    "reference_answer": "比较 Naive 单次检索、固定二次检索和 Agentic 自适应检索。",
+    "required_evidence": ["Naive 单次检索", "固定二次检索", "Agentic 自适应检索"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "agent_ablation"
+  },
+  {
+    "id": "q32",
+    "question": "Early Stop 在什么时候减少 Tool Call？",
+    "reference_answer": "Agentic 模式首次证据足够时停止，只有不足才重写查询。",
+    "required_evidence": ["首次证据足够", "Early Stop", "Query Rewrite"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "agent_ablation"
+  },
+  {
+    "id": "q33",
+    "question": "Query Rewrite 实验记录哪些收益和代价？",
+    "reference_answer": "记录触发率、成功率、质量增益、额外 token 和延迟。",
+    "required_evidence": ["触发率", "成功率", "额外 token"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "agent_ablation"
+  },
+  {
+    "id": "q34",
+    "question": "Reranker 超时后如何保证任务继续？",
+    "reference_answer": "回退原始排序，并把状态记录为 degraded。",
+    "required_evidence": ["回退原始排序", "degraded"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "failure"
+  },
+  {
+    "id": "q35",
+    "question": "Reranker 曲线要控制哪些检索参数？",
+    "reference_answer": "分别改变 candidate_k、evidence_k 和 reranker 模型，报告质量与延迟。",
+    "required_evidence": ["candidate_k", "evidence_k", "质量与延迟"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "reranker"
+  },
+  {
+    "id": "q36",
+    "question": "哪些 Tool 错误应该重试，哪些不应重试？",
+    "reference_answer": "连接超时可有限重试，参数 Schema 错误不可重试。",
+    "required_evidence": ["参数错误不可重试", "连接超时", "有限重试"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "tooling"
+  },
+  {
+    "id": "q37",
+    "question": "MCP 如何读取一次运行的完整证据？",
+    "reference_answer": "通过稳定 URI 读取 Evidence resource，本地 Agent 仍复用 Tool Registry。",
+    "required_evidence": ["URI", "Evidence", "Tool Registry"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "mcp"
+  },
+  {
+    "id": "q38",
+    "question": "成本统计为什么单列 retrieval context token？",
+    "reference_answer": "它将检索上下文与 prompt、completion token 分开，可计算单任务成本。",
+    "required_evidence": ["retrieval context token", "prompt token", "单任务估算成本"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "cost"
+  },
+  {
+    "id": "q39",
+    "question": "页面刷新后 Agent Trace 如何恢复？",
+    "reference_answer": "持久化所有阶段事件并按 sequence 恢复完整轨迹。",
+    "required_evidence": ["持久化", "sequence", "完整轨迹"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "trace"
+  },
+  {
+    "id": "q40",
+    "question": "真实 Qwen/vLLM 与 deterministic provider 的实验角色有何不同？",
+    "reference_answer": "Qwen/vLLM 用于真实质量评测，确定性 provider 只验证离线管线。",
+    "required_evidence": ["真实评测", "确定性 provider", "离线管线"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "model_comparison"
+  },
+  {
+    "id": "q41",
+    "question": "Prefix Cache 实验和并发压测分别看什么？",
+    "reference_answer": "前者看重复查询的 TTFT 与吞吐，后者看多并发的延迟、吞吐和成功率。",
+    "required_evidence": ["重复 Research Query", "TTFT", "1、4、8、16"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "multi_hop"
+  },
+  {
+    "id": "q42",
+    "question": "kill Worker 的故障注入要验证什么？",
+    "reference_answer": "验证 lease recovery、幂等和任务一致性。",
+    "required_evidence": ["lease recovery", "幂等", "任务一致性"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "failure"
+  },
+  {
+    "id": "q43",
+    "question": "GitHub Repo 如何避免每次全量重建？",
+    "reference_answer": "用文件 hash 和 Git commit 检测更新，只重新索引变更文件。",
+    "required_evidence": ["文件 hash", "Git commit", "变更文件"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "incremental"
+  },
+  {
+    "id": "q44",
+    "question": "本地证据不足后使用 Web Search 还需要什么约束？",
+    "reference_answer": "Web 结果也必须生成 Evidence 并经过相同 Citation Verification。",
+    "required_evidence": ["本地证据不足", "Evidence", "不能绕过引用校验"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "web"
+  },
+  {
+    "id": "q45",
+    "question": "百万级文档时系统应如何拆分？",
+    "reference_answer": "拆分元数据、对象存储、分布式向量数据库、检索服务和任务队列并水平扩展。",
+    "required_evidence": ["对象存储", "分布式向量数据库", "水平扩展"],
+    "expected_sources": ["docs"],
+    "expected_tools": ["semantic_document_search"],
+    "category": "scale"
+  },
+  {
+    "id": "q46",
+    "question": "项目采用哪一种知识图谱实体消歧算法？",
+    "reference_answer": "",
+    "required_evidence": [],
+    "expected_sources": [],
+    "expected_tools": ["semantic_document_search"],
+    "category": "insufficient",
+    "answerable": false
+  },
+  {
+    "id": "q47",
+    "question": "生产集群的 Kubernetes namespace 名称是什么？",
+    "reference_answer": "",
+    "required_evidence": [],
+    "expected_sources": [],
+    "expected_tools": ["semantic_document_search"],
+    "category": "insufficient",
+    "answerable": false
+  },
+  {
+    "id": "q48",
+    "question": "线上用户认证使用 OAuth 的哪个 client id？",
+    "reference_answer": "",
+    "required_evidence": [],
+    "expected_sources": [],
+    "expected_tools": ["semantic_document_search"],
+    "category": "insufficient",
+    "answerable": false
+  },
+  {
+    "id": "q49",
+    "question": "未公开的商业客户每天提交多少次检索？",
+    "reference_answer": "",
+    "required_evidence": [],
+    "expected_sources": [],
+    "expected_tools": ["semantic_document_search"],
+    "category": "insufficient",
+    "answerable": false
+  },
+  {
+    "id": "q50",
+    "question": "团队下个季度确定会购买哪款 GPU？",
+    "reference_answer": "",
+    "required_evidence": [],
+    "expected_sources": [],
+    "expected_tools": ["semantic_document_search"],
+    "category": "insufficient",
+    "answerable": false
   }
 ]

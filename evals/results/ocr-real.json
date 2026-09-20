@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-09-20T06:18:03.785525+00:00",
+  "tesseract": "tesseract 5.3.4",
+  "fixture": "generated image-only PDF with no text layer",
+  "chunks": [
+    {
+      "content": "PREFIX CACHE REUSES KV BLOCKS SCANNED PAGE EVIDENCE 2026",
+      "locator": "scanned-evidence.pdf#page=1",
+      "page": 1,
+      "bbox": [
+        34.2,
+        48.24,
+        484.20000000000005,
+        118.08
+      ],
+      "extraction_method": "ocr:tesseract"
+    }
+  ],
+  "status": "passed"
+}

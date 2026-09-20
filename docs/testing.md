@@ -24,6 +24,8 @@ npm --prefix frontend run test:e2e
 
 GPU 测试不进入普通 CI；使用下文的 `make verify-gpu` 单独运行。它验证模型健康、
 流式首 token、长上下文、prefix cache 和 `/metrics` 抓取。
+真实 OCR 探针可用 `make verify-ocr` 运行；脚本会创建无文本层的 image-only PDF，
+并校验 Tesseract 输出、页码和 bbox。
 
 ## 分阶段验收
 
@@ -35,7 +37,7 @@ make verify
 ```
 
 它依次执行预检、Python/TypeScript 静态检查、后端/前端测试、生产构建、
-Playwright、独立 API/worker 的真实 HTTP 全流程和 20 题双基线评测。也可以只运行一个阶段：
+Playwright、独立 API/worker 的真实 HTTP 全流程和 50 题三策略评测。也可以只运行一个阶段：
 
 ```bash
 ./scripts/verify.sh quality
@@ -59,11 +61,24 @@ make evaluate-gpu
 
 GPU 阶段检查 `nvidia-smi`、模型注册、流式首 token、重复前缀的 cache 指标和长
 上下文请求。`make evaluate-gpu` 进一步使用实际 Qwen、Qdrant 和
-`multilingual-e5-small` 完成 20 题双基线评测。可用 `--skip-long-context`
+`multilingual-e5-small` 完成 50 题三策略评测。可用 `--skip-long-context`
 单独运行较短探针：
 
 ```bash
 uv run --project backend python scripts/verify_gpu.py --skip-long-context
+```
+
+Prefix Cache 开/关需要重启同一 vLLM，并分别运行：
+
+```bash
+uv run --project backend python scripts/benchmark_runtime.py \
+  --prefix-cache-mode on --output evals/results/runtime-prefix-on.json
+uv run --project backend python scripts/benchmark_runtime.py \
+  --prefix-cache-mode off --output evals/results/runtime-prefix-off.json
+uv run --project backend python scripts/compare_runtime.py \
+  --off evals/results/runtime-prefix-off.json \
+  --on evals/results/runtime-prefix-on.json \
+  --output evals/results/runtime-prefix-comparison.json
 ```
 
 在线阶段默认导入包含 Markdown 的 `octocat/Spoon-Knife` 并实际请求 GitHub

@@ -15,7 +15,7 @@ if [[ -z "$demo_video" ]]; then
 fi
 
 ffmpeg -y -ss 2 -i "$demo_video" \
-  -vf "fps=8,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" \
+  -vf "setpts=2.0*PTS,fps=8,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" \
   "$demo_output"
 
 echo "Demo written to $demo_output"

@@ -1,0 +1,147 @@
+{
+  "generated_at": "2026-09-20T07:13:53.172806+00:00",
+  "base_url": "http://127.0.0.1:8010",
+  "health": {
+    "status": "ok",
+    "version": "0.2.0",
+    "vector_backend": "qdrant_local",
+    "embedding_backend": "fastembed",
+    "embedding_model": "intfloat/multilingual-e5-small",
+    "reranker_backend": "identity",
+    "reranker_model": "BAAI/bge-reranker-base",
+    "candidate_k": 20,
+    "evidence_k": 6
+  },
+  "configuration": {
+    "mode": "agentic",
+    "question": "Explain prefix caching and its effect on output.",
+    "prefix_repeats": 5,
+    "concurrency": [
+      1,
+      4,
+      8,
+      16
+    ],
+    "requests_per_level": 16,
+    "poll_interval_seconds": 0.25,
+    "http_timeout_seconds": 60,
+    "prefix_cache_mode": "off"
+  },
+  "prefix_cache_summary": {
+    "first_ttft_ms": 720.6118619978952,
+    "warm_median_ttft_ms": 80.87343749866704,
+    "warm_p95_ttft_ms": 90.8319929985737,
+    "prefix_cache_hits_delta": 0,
+    "prefix_cache_queries_delta": 0
+  },
+  "prefix_cache": [
+    {
+      "run_id": "run_ed6a54aef40145c9be07385f83632791",
+      "ttft_ms": 720.6118619978952,
+      "total_latency_ms": 2728.749392001191,
+      "client_latency_ms": 3037.0801979988755,
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "provider": "openai_compatible"
+    },
+    {
+      "run_id": "run_ee6fb6d04d104305a4d2064e5913a641",
+      "ttft_ms": 79.38172000285704,
+      "total_latency_ms": 2062.2988210016047,
+      "client_latency_ms": 2413.240664998739,
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "provider": "openai_compatible"
+    },
+    {
+      "run_id": "run_6b46223b12e54a9c94d21365b054bdf5",
+      "ttft_ms": 80.4024799981562,
+      "total_latency_ms": 2087.0686229973217,
+      "client_latency_ms": 2520.361718001368,
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "provider": "openai_compatible"
+    },
+    {
+      "run_id": "run_dd0653f11ec849179fc1f91f1ee71aec",
+      "ttft_ms": 81.3443949991779,
+      "total_latency_ms": 2159.8285589971056,
+      "client_latency_ms": 2433.4611000012956,
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "provider": "openai_compatible"
+    },
+    {
+      "run_id": "run_2884cef9f8594ec890e08e8acd00ebd2",
+      "ttft_ms": 90.8319929985737,
+      "total_latency_ms": 2120.66589999813,
+      "client_latency_ms": 2437.040049000643,
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "provider": "openai_compatible"
+    }
+  ],
+  "concurrency": [
+    {
+      "concurrency": 1,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "errors": [],
+      "poll_transport_retries": 0,
+      "poll_transport_error_types": [],
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 0.39534859385211957,
+      "p50_ms": 2479.999322000367,
+      "p95_ms": 2754.198827999062,
+      "wall_seconds": 40.47061314700113
+    },
+    {
+      "concurrency": 4,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "errors": [],
+      "poll_transport_retries": 0,
+      "poll_transport_error_types": [],
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 0.4345893557725409,
+      "p50_ms": 8988.553974000752,
+      "p95_ms": 11395.957933997124,
+      "wall_seconds": 36.8163642010004
+    },
+    {
+      "concurrency": 8,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "errors": [],
+      "poll_transport_retries": 1,
+      "poll_transport_error_types": [
+        "ConnectTimeout"
+      ],
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 0.1955300407442909,
+      "p50_ms": 17017.87063300071,
+      "p95_ms": 70350.16484900189,
+      "wall_seconds": 81.82885831300155
+    },
+    {
+      "concurrency": 16,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "errors": [],
+      "poll_transport_retries": 50,
+      "poll_transport_error_types": [
+        "ConnectError",
+        "ReadError"
+      ],
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 0.4098915051112381,
+      "p50_ms": 20501.356244001727,
+      "p95_ms": 39030.30434399989,
+      "wall_seconds": 39.034719676998066
+    }
+  ]
+}

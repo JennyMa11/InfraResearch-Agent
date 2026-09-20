@@ -1,0 +1,46 @@
+services:
+  api:
+    build: ./backend
+    environment: &backend-env
+      INFRARESEARCH_DATA_DIR: /data
+      INFRARESEARCH_DATABASE_URL: sqlite:////data/infraresearch.db
+      INFRARESEARCH_VECTOR_BACKEND: sqlite
+      INFRARESEARCH_EMBEDDING_BACKEND: hash
+      INFRARESEARCH_LLM_BASE_URL: http://host.docker.internal:8001/v1
+      INFRARESEARCH_LLM_TIMEOUT_SECONDS: 1
+    ports:
+      - "8000:8000"
+    volumes:
+      - demo-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  worker:
+    build: ./backend
+    command: ["python", "-m", "infraresearch.worker"]
+    environment: *backend-env
+    volumes:
+      - demo-data:/data
+    depends_on:
+      api:
+        condition: service_healthy
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: ["sh", "-c", "npm ci && npm run dev -- --host 0.0.0.0"]
+    environment:
+      VITE_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  demo-data:

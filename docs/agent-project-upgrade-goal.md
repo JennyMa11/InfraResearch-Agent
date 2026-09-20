@@ -270,6 +270,6 @@ Research Agent
   `2cfc18c9415c912f9d8155881c133215df768a70`；
 - `make verify` 通过：46 个后端测试、9 个前端测试、4 个 Playwright 场景、
   隔离 API/worker 工作流、20题 Naive/Agentic 双基线、类型检查与生产构建；
-- 33秒演示由 `scripts/record-demo.sh` 生成到 `docs/assets/agent-demo.gif`；
+- 约67秒演示由 `scripts/record-demo.sh` 生成到 `docs/assets/agent-demo.gif`；
 - 当前离线集上 Reranker 没有带来质量收益，Agentic 也未优于 Naive；
   README 与简历材料已明确保留这些限制，未将退化结果包装为提升。

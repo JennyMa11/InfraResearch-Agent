@@ -3,6 +3,39 @@
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and
 Semantic Versioning.
 
+## [0.3.0] - 2026-09-20
+
+### Added
+
+- Layout-aware PDF ingestion with real Tesseract OCR fallback and page/bbox evidence locators.
+- Dense + BM25 weighted-RRF retrieval, structure-aware Markdown/code chunks, symbol locators and
+  incremental GitHub file/Issue synchronization.
+- Optional guarded Web Search and URL ingestion with unified Evidence persistence and citation
+  verification.
+- Fifty-question evaluation with fact rubrics, pre-repair model scoring, repair-rate diagnostics,
+  bootstrap confidence intervals and paired mode comparisons.
+- Reproducible Qwen3-0.6B and Qwen3-1.7B live runs across Naive, Fixed Retrieval and Agentic
+  modes using Qdrant Local and FastEmbed.
+- Controlled Prefix Cache on/off benchmark, 1/4/8/16 concurrency acceptance, real OCR probe,
+  Docker images/Compose configuration and fixed offline demo.
+
+### Changed
+
+- Grade rewritten queries directly and retain the best evidence grade across Agent rounds.
+- Add domain-aware query rewrites for hybrid retrieval, source filtering, symbols, tool errors,
+  model comparison and incremental indexing.
+- Make LLM temperature configurable and use temperature zero for published model comparisons.
+- Preserve the raw generated answer before citation repair so evaluator results separate model
+  capability from end-to-end repaired output.
+- Make the vLLM setup work without a system `python-venv` package by creating the environment
+  through `uv`, and expose an explicit Prefix Cache switch.
+
+### Fixed
+
+- Prevent citation repair from inflating the primary model-correctness score.
+- Avoid benchmark false failures caused by aggressive polling and transient observation errors;
+  retries and their error types are now recorded in the report.
+
 ## [0.2.0] - 2026-09-20
 
 ### Added

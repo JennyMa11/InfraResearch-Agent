@@ -36,9 +36,13 @@ class GitHubSourceIn(BaseModel):
     include_issues: bool = False
 
 
+class URLSourceIn(BaseModel):
+    url: HttpUrl
+
+
 class ResearchRequest(BaseModel):
     question: str = Field(min_length=2, max_length=4000)
-    mode: Literal["naive", "agentic"] = "agentic"
+    mode: Literal["naive", "fixed_retrieval", "agentic"] = "agentic"
     top_k: int = Field(default=6, ge=1, le=20)
     candidate_k: int | None = Field(default=None, ge=1, le=100)
     evidence_k: int | None = Field(default=None, ge=1, le=20)
@@ -79,6 +83,7 @@ class Citation(BaseModel):
     marker: str
     claim: str
     valid: bool
+    support_score: float = 0
 
 
 class TraceEventOut(BaseModel):
@@ -97,6 +102,9 @@ class ToolCallOut(BaseModel):
     duration_ms: float
     status: str
     error: str | None
+    error_type: str | None = None
+    retryable: bool = False
+    attempts: int = 1
 
 
 class RunMetrics(BaseModel):
@@ -104,9 +112,13 @@ class RunMetrics(BaseModel):
     ttft_ms: float | None = None
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    retrieval_context_tokens: int = 0
+    estimated_cost_usd: float = 0
     tool_calls: int = 0
     agent_steps: int = 0
     retrieval_rounds: int = 0
+    rewrite_attempts: int = 0
+    rewrite_successes: int = 0
     prefix_cache_hits: int | None = None
     prefix_cache_queries: int | None = None
     kv_cache_usage: float | None = None

@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import re
+from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass
 from threading import Lock
@@ -135,6 +136,9 @@ class SearchHit:
     tool: str = "semantic_document_search"
     query: str = ""
     rerank_score: float | None = None
+    dense_score: float | None = None
+    lexical_score: float | None = None
+    fusion_method: str | None = None
 
     @property
     def score(self) -> float:
@@ -222,6 +226,19 @@ class VectorIndex:
             wait=True,
         )
 
+    def delete_chunks(self, chunk_ids: Sequence[str]) -> None:
+        if not self._client or not chunk_ids:
+            return
+        point_ids = [
+            int(hashlib.sha256(chunk_id.encode()).hexdigest()[:15], 16)
+            for chunk_id in chunk_ids
+        ]
+        self._client.delete(
+            collection_name=self.collection,
+            points_selector=self._models.PointIdsList(points=point_ids),
+            wait=True,
+        )
+
     def replace_source(self, source_id: str, chunks: list[Chunk]) -> None:
         self.delete_source(source_id)
         self.upsert(chunks)
@@ -254,51 +271,144 @@ class VectorIndex:
             self._synchronized = True
 
     def search(self, session: Session, query: str, top_k: int = 6) -> list[SearchHit]:
-        if self._client:
-            try:
-                self.synchronize(session)
-                result = self._client.query_points(
-                    collection_name=self.collection,
-                    query=self._encoder.encode_query(query),
-                    limit=top_k,
-                    with_payload=True,
-                ).points
-                ids = [str(item.payload["chunk_id"]) for item in result]
-                chunks = session.scalars(
-                    select(Chunk)
-                    .join(Source)
-                    .where(Chunk.id.in_(ids), Source.status == "completed")
-                ).all()
-                by_id = {chunk.id: chunk for chunk in chunks}
-                hits = [
-                    SearchHit(by_id[str(item.payload["chunk_id"])], float(item.score))
-                    for item in result
-                    if str(item.payload["chunk_id"]) in by_id
-                ]
-                if hits:
-                    return hits
-            except Exception:
-                self.backend = "sqlite_lexical"
-        return self._lexical_search(session, query, top_k)
+        mode = self.settings.retrieval_mode.lower()
+        if mode not in {"hybrid", "dense", "lexical"}:
+            raise ValueError("retrieval_mode must be 'hybrid', 'dense', or 'lexical'")
+
+        pool_size = max(top_k * 3, self.settings.candidate_k)
+        dense_hits = self._dense_search(session, query, pool_size) if mode != "lexical" else []
+        lexical_hits = (
+            self._bm25_search(session, query, pool_size) if mode != "dense" else []
+        )
+        if mode == "hybrid" and dense_hits and lexical_hits:
+            self.backend = "qdrant_local+bm25"
+            return self._rrf_fuse(dense_hits, lexical_hits, top_k)
+        if dense_hits:
+            return dense_hits[:top_k]
+        if mode == "dense":
+            self.backend = "sqlite_bm25_fallback"
+        return lexical_hits[:top_k] or self._bm25_search(session, query, top_k)
+
+    def _dense_search(self, session: Session, query: str, top_k: int) -> list[SearchHit]:
+        if not self._client:
+            return []
+        try:
+            self.synchronize(session)
+            result = self._client.query_points(
+                collection_name=self.collection,
+                query=self._encoder.encode_query(query),
+                limit=top_k,
+                with_payload=True,
+            ).points
+            ids = [str(item.payload["chunk_id"]) for item in result]
+            chunks = session.scalars(
+                select(Chunk)
+                .join(Source)
+                .where(Chunk.id.in_(ids), Source.status == "completed")
+            ).all()
+            by_id = {chunk.id: chunk for chunk in chunks}
+            return [
+                SearchHit(
+                    chunk=by_id[str(item.payload["chunk_id"])],
+                    retrieval_score=float(item.score),
+                    dense_score=float(item.score),
+                    fusion_method="dense",
+                )
+                for item in result
+                if str(item.payload["chunk_id"]) in by_id
+            ]
+        except Exception:
+            self.backend = "sqlite_bm25_fallback"
+            return []
+
+    def _rrf_fuse(
+        self,
+        dense_hits: list[SearchHit],
+        lexical_hits: list[SearchHit],
+        top_k: int,
+    ) -> list[SearchHit]:
+        """Weighted reciprocal-rank fusion with both channel scores preserved."""
+
+        combined: dict[str, SearchHit] = {}
+        scores: dict[str, float] = {}
+        rrf_k = max(1, self.settings.hybrid_rrf_k)
+        channels = (
+            (dense_hits, self.settings.hybrid_dense_weight, "dense"),
+            (lexical_hits, self.settings.hybrid_lexical_weight, "lexical"),
+        )
+        maximum_rrf = sum(weight for _, weight, _ in channels) / (rrf_k + 1)
+        for hits, weight, channel in channels:
+            for rank, hit in enumerate(hits, start=1):
+                chunk_id = hit.chunk.id
+                target = combined.setdefault(
+                    chunk_id,
+                    SearchHit(
+                        chunk=hit.chunk,
+                        retrieval_score=0,
+                        query=hit.query,
+                        fusion_method="weighted_rrf",
+                    ),
+                )
+                scores[chunk_id] = scores.get(chunk_id, 0) + weight / (rrf_k + rank)
+                if channel == "dense":
+                    target.dense_score = hit.retrieval_score
+                else:
+                    target.lexical_score = hit.retrieval_score
+        for chunk_id, hit in combined.items():
+            hit.retrieval_score = scores[chunk_id] / max(maximum_rrf, 1e-12)
+        return sorted(combined.values(), key=lambda hit: hit.retrieval_score, reverse=True)[:top_k]
 
     @staticmethod
     def _lexical_search(session: Session, query: str, top_k: int) -> list[SearchHit]:
-        query_tokens = set(tokenize(query))
+        return VectorIndex._bm25_search(session, query, top_k)
+
+    @staticmethod
+    def _bm25_search(session: Session, query: str, top_k: int) -> list[SearchHit]:
+        """BM25 over SQLite-owned chunks; deterministic fallback for FTS deployments."""
+
+        query_tokens = tokenize(query)
+        if not query_tokens:
+            return []
         chunks = session.scalars(
             select(Chunk).join(Source).where(Source.status == "completed")
         ).all()
+        if not chunks:
+            return []
+        documents = [tokenize(chunk.content) for chunk in chunks]
+        average_length = sum(len(tokens) for tokens in documents) / max(1, len(documents))
+        document_frequency: Counter[str] = Counter()
+        for tokens in documents:
+            document_frequency.update(set(tokens))
+        total = len(documents)
+        k1, b = 1.5, 0.75
         scored: list[SearchHit] = []
-        for chunk in chunks:
-            tokens = tokenize(chunk.content)
+        for chunk, tokens in zip(chunks, documents, strict=True):
             if not tokens:
                 continue
-            overlap = sum(1 for token in tokens if token in query_tokens)
-            coverage = len(query_tokens & set(tokens)) / max(1, len(query_tokens))
-            density = overlap / math.sqrt(len(tokens))
-            score = 0.75 * coverage + 0.25 * min(1.0, density)
+            frequencies = Counter(tokens)
+            score = 0.0
+            for token in query_tokens:
+                frequency = frequencies[token]
+                if not frequency:
+                    continue
+                frequency_docs = document_frequency[token]
+                inverse_document_frequency = math.log(
+                    1 + (total - frequency_docs + 0.5) / (frequency_docs + 0.5)
+                )
+                denominator = frequency + k1 * (
+                    1 - b + b * len(tokens) / max(1.0, average_length)
+                )
+                score += inverse_document_frequency * frequency * (k1 + 1) / denominator
             if score > 0:
-                scored.append(SearchHit(chunk, score))
-        return sorted(scored, key=lambda hit: hit.score, reverse=True)[:top_k]
+                scored.append(
+                    SearchHit(
+                        chunk=chunk,
+                        retrieval_score=score,
+                        lexical_score=score,
+                        fusion_method="bm25",
+                    )
+                )
+        return sorted(scored, key=lambda hit: hit.retrieval_score, reverse=True)[:top_k]
 
     @staticmethod
     def keyword_search(

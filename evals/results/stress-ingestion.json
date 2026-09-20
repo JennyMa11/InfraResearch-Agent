@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-09-20T04:43:13.943564+00:00",
+  "pdf": {
+    "pages": 120,
+    "chunks": 120,
+    "seconds": 0.048380324999925506,
+    "status": "completed"
+  },
+  "repository": {
+    "files": 1000,
+    "chunks": 2000,
+    "seconds": 0.13418540299971937
+  },
+  "issues": {
+    "count": 500,
+    "seconds": 0.03264744599982805
+  },
+  "retrieval": {
+    "corpus_chunks": 2620,
+    "top_k": 10,
+    "latency_ms": 28.191953999339603
+  }
+}

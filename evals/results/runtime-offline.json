@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-09-20T04:38:29.380310+00:00",
+  "base_url": "http://127.0.0.1:8000",
+  "health": {
+    "status": "ok",
+    "version": "0.2.0",
+    "vector_backend": "sqlite_lexical",
+    "embedding_backend": "none",
+    "embedding_model": "intfloat/multilingual-e5-small",
+    "reranker_backend": "identity",
+    "reranker_model": "BAAI/bge-reranker-base",
+    "candidate_k": 20,
+    "evidence_k": 6
+  },
+  "configuration": {
+    "mode": "agentic",
+    "question": "Explain prefix caching and its effect on output.",
+    "prefix_repeats": 3,
+    "concurrency": [
+      1,
+      4,
+      8,
+      16
+    ],
+    "requests_per_level": 16
+  },
+  "prefix_cache": [
+    {
+      "run_id": "run_90519608dabf479487e6151c13a33fcd",
+      "ttft_ms": 0.0,
+      "total_latency_ms": 330.55884999976115,
+      "client_latency_ms": 454.0504480000891,
+      "prefix_cache_hits": null,
+      "prefix_cache_queries": null,
+      "provider": "extractive"
+    },
+    {
+      "run_id": "run_d3504bb2529c49b8b8bbbb8b8b12afbd",
+      "ttft_ms": 0.0,
+      "total_latency_ms": 288.1839889996627,
+      "client_latency_ms": 560.3420759998698,
+      "prefix_cache_hits": null,
+      "prefix_cache_queries": null,
+      "provider": "extractive"
+    },
+    {
+      "run_id": "run_e3a51b506565452b886a866326c3e3fa",
+      "ttft_ms": 0.0,
+      "total_latency_ms": 295.1799479997135,
+      "client_latency_ms": 554.0719430000536,
+      "prefix_cache_hits": null,
+      "prefix_cache_queries": null,
+      "provider": "extractive"
+    }
+  ],
+  "concurrency": [
+    {
+      "concurrency": 1,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 1.7579892792988454,
+      "p50_ms": 564.5663065001827,
+      "p95_ms": 626.7058319999705,
+      "wall_seconds": 9.1013069239998
+    },
+    {
+      "concurrency": 4,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 2.8168241267980103,
+      "p50_ms": 1309.1448690001926,
+      "p95_ms": 2137.5753740003347,
+      "wall_seconds": 5.680155834999823
+    },
+    {
+      "concurrency": 8,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 3.214250074278971,
+      "p50_ms": 1951.798051500191,
+      "p95_ms": 3526.282810000339,
+      "wall_seconds": 4.977832972000215
+    },
+    {
+      "concurrency": 16,
+      "requests": 16,
+      "completed": 16,
+      "failed": 0,
+      "success_rate": 1.0,
+      "throughput_tasks_per_second": 3.101565521380603,
+      "p50_ms": 3287.804263999533,
+      "p95_ms": 5149.273461000121,
+      "wall_seconds": 5.1586851510001
+    }
+  ]
+}

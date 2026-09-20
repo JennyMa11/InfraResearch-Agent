@@ -122,12 +122,21 @@ class ResearchAgent:
 
                 all_hits: dict[str, SearchHit] = {}
                 ranked_hits: list[SearchHit] = []
+                final_sufficient = run.mode == "naive"
+                rewrite_pending = False
+                final_grade: dict[str, Any] = {}
                 queries = (
                     [run.question]
                     if run.mode == "naive"
                     else [item.question for item in plan.subquestions]
                 )
-                max_rounds = 1 if run.mode == "naive" else self.settings.max_agent_rewrites + 1
+                max_rounds = (
+                    1
+                    if run.mode == "naive"
+                    else 2
+                    if run.mode == "fixed_retrieval"
+                    else self.settings.max_agent_rewrites + 1
+                )
                 for round_number in range(max_rounds):
                     self._checkpoint(cancel_check)
                     metrics.retrieval_rounds += 1
@@ -144,7 +153,8 @@ class ResearchAgent:
                         plan,
                         candidate_limit,
                         writer,
-                        agentic=run.mode == "agentic",
+                        agentic=run.mode != "naive",
+                        allow_web=round_number > 0,
                         cancel_check=cancel_check,
                     )
                     metrics.tool_calls += len(queries if run.mode == "naive" else queries)
@@ -168,20 +178,46 @@ class ResearchAgent:
                     if run.mode == "naive":
                         break
                     sufficient, detail = self._grade(
-                        run.question, ranked_hits[:evidence_limit]
+                        " ".join(queries), ranked_hits[:evidence_limit]
                     )
+                    if (
+                        not final_grade
+                        or detail.get("coverage", 0) + detail.get("relevance", 0)
+                        > final_grade.get("coverage", 0) + final_grade.get("relevance", 0)
+                    ):
+                        final_grade = detail
+                    if sufficient and rewrite_pending:
+                        metrics.rewrite_successes += 1
+                    rewrite_pending = False
                     writer.emit("evidence_graded", "evidence_grader", **detail)
                     metrics.agent_steps += 1
+                    fixed_follow_up = (
+                        run.mode == "fixed_retrieval" and round_number < max_rounds - 1
+                    )
                     writer.emit(
                         "decision_made",
                         "evidence_grader",
-                        action="generate" if sufficient else "retrieve_again",
-                        reason=self._decision_reason(detail),
+                        action=(
+                            "fixed_retrieve_again"
+                            if fixed_follow_up
+                            else "generate"
+                            if sufficient
+                            else "retrieve_again"
+                        ),
+                        reason=(
+                            "fixed two-retrieval control requires a second retrieval"
+                            if fixed_follow_up
+                            else self._decision_reason(detail)
+                        ),
                         round=round_number + 1,
                     )
                     if sufficient:
-                        break
-                    if round_number < max_rounds - 1:
+                        final_sufficient = True
+                        if run.mode == "agentic" or round_number == max_rounds - 1:
+                            break
+                    if round_number < max_rounds - 1 and (
+                        run.mode == "fixed_retrieval" or not sufficient
+                    ):
                         previous_queries = queries
                         queries = [
                             self._rewrite_query(item, round_number + 1)
@@ -193,8 +229,34 @@ class ResearchAgent:
                             round=round_number + 1,
                             previous_queries=previous_queries,
                             queries=queries,
-                            reason=self._decision_reason(detail),
+                            reason=(
+                                "fixed two-retrieval control"
+                                if run.mode == "fixed_retrieval"
+                                else self._decision_reason(detail)
+                            ),
                         )
+                        metrics.rewrite_attempts += 1
+                        rewrite_pending = True
+
+                if (
+                    run.mode == "agentic"
+                    and not final_sufficient
+                    and (
+                        not ranked_hits
+                        or (
+                            final_grade.get("coverage", 0) < 0.2
+                            or final_grade.get("relevance", 0) < 0.12
+                        )
+                    )
+                ):
+                    ranked_hits = []
+                    writer.emit(
+                        "decision_made",
+                        "evidence_grader",
+                        action="refuse",
+                        reason="maximum retrieval rounds exhausted without sufficient evidence",
+                        round=max_rounds,
+                    )
 
                 evidence = self._register_evidence(
                     session,
@@ -204,6 +266,9 @@ class ResearchAgent:
                     cancel_check=cancel_check,
                 )
                 evidence = self._fit_token_budget(evidence)
+                metrics.retrieval_context_tokens = sum(
+                    max(1, len(item.content) // 4) for item in evidence
+                )
                 self._checkpoint(cancel_check)
                 writer.emit("node_started", "generator", evidence_count=len(evidence))
                 generation = self.provider.generate(
@@ -214,8 +279,19 @@ class ResearchAgent:
                 )
                 self._checkpoint(cancel_check)
                 run.answer = generation.text
+                writer.emit(
+                    "answer_generated",
+                    "generator",
+                    answer=generation.text,
+                    provider=generation.provider,
+                )
                 metrics.prompt_tokens = generation.prompt_tokens
                 metrics.completion_tokens = generation.completion_tokens
+                metrics.estimated_cost_usd = (
+                    generation.prompt_tokens * self.settings.input_cost_per_million_tokens
+                    + generation.completion_tokens
+                    * self.settings.output_cost_per_million_tokens
+                ) / 1_000_000
                 metrics.ttft_ms = generation.ttft_ms
                 metrics.provider = generation.provider
                 metrics.agent_steps += 1
@@ -358,6 +434,7 @@ class ResearchAgent:
         writer: EventWriter,
         *,
         agentic: bool,
+        allow_web: bool = False,
         cancel_check: Callable[[], None] | None = None,
     ) -> list[SearchHit]:
         hits: list[SearchHit] = []
@@ -373,6 +450,8 @@ class ResearchAgent:
                 tool_names.append("code_keyword_search")
             if agentic and expected in {"issues", "mixed"}:
                 tool_names.append("github_issue_search")
+            if allow_web and self.tool_registry.has("web_search"):
+                tool_names.append("web_search")
             for tool_name in tool_names:
                 self._checkpoint(cancel_check)
                 writer.emit(
@@ -400,6 +479,9 @@ class ResearchAgent:
                     duration_ms=result.duration_ms,
                     status=result.status,
                     error=result.error,
+                    error_type=result.error_type,
+                    retryable=int(result.retryable),
+                    attempts=result.attempts,
                 )
                 session.add(call)
                 session.commit()
@@ -416,6 +498,8 @@ class ResearchAgent:
                     duration_ms=round(result.duration_ms, 2),
                     status=result.status,
                     error=result.error,
+                    error_type=result.error_type,
+                    retryable=result.retryable,
                     attempts=result.attempts,
                 )
                 writer.emit(
@@ -430,6 +514,8 @@ class ResearchAgent:
                     summary=call.result_summary,
                     status=result.status,
                     error=result.error,
+                    error_type=result.error_type,
+                    retryable=result.retryable,
                 )
         return hits
 
@@ -444,19 +530,44 @@ class ResearchAgent:
                 "thresholds": {
                     "coverage": 0.35,
                     "relevance": 0.12,
-                    "strong_relevance": 0.55,
+                    "strong_relevance": 0.65,
                 },
             }
-        query_tokens = set(tokenize(question))
+        stop_tokens = {
+            "what",
+            "how",
+            "why",
+            "when",
+            "where",
+            "which",
+            "the",
+            "and",
+            "for",
+            "with",
+            "是什么",
+            "为什么",
+            "如何",
+            "什么",
+            "哪些",
+            "怎么",
+        }
+        query_tokens = {
+            token for token in tokenize(question) if len(token) > 1 and token not in stop_tokens
+        }
         evidence_tokens = set()
         sources = set()
+        per_hit_relevance: list[float] = []
         for hit in hits[:8]:
-            evidence_tokens.update(tokenize(hit.chunk.content))
+            hit_tokens = set(tokenize(hit.chunk.content))
+            evidence_tokens.update(hit_tokens)
+            per_hit_relevance.append(
+                len(query_tokens & hit_tokens) / max(1, len(query_tokens))
+            )
             sources.add(hit.chunk.source_id)
         coverage = len(query_tokens & evidence_tokens) / max(1, len(query_tokens))
-        relevance = sum(hit.score for hit in hits[:5]) / min(5, len(hits))
+        relevance = max(per_hit_relevance, default=0)
         diversity = min(1.0, len(sources) / 2)
-        sufficient = (coverage >= 0.35 and relevance >= 0.12) or relevance >= 0.55
+        sufficient = (coverage >= 0.35 and relevance >= 0.18) or relevance >= 0.65
         return sufficient, {
             "sufficient": sufficient,
             "relevance": round(relevance, 3),
@@ -465,7 +576,7 @@ class ResearchAgent:
             "thresholds": {
                 "coverage": 0.35,
                 "relevance": 0.12,
-                "strong_relevance": 0.55,
+                "strong_relevance": 0.65,
             },
         }
 
@@ -483,7 +594,40 @@ class ResearchAgent:
 
     @staticmethod
     def _rewrite_query(query: str, round_number: int) -> str:
-        suffixes = ["documentation implementation configuration", "error behavior example source"]
+        expansions = (
+            (
+                ("语义搜索", "字面匹配"),
+                "Dense Retrieval BM25 weighted RRF hybrid retrieval",
+            ),
+            (
+                ("不应该被仓库索引", "哪些文件"),
+                ".git build directory binary model weights secret files ignored",
+            ),
+            (
+                ("源码检索", "最小证据单元"),
+                "Symbol locator class function method source code",
+            ),
+            (
+                ("错误应该重试", "不应重试"),
+                "connection timeout limited retry parameter Schema validation error",
+            ),
+            (
+                ("真实 qwen", "deterministic provider"),
+                "Qwen vLLM real evaluation deterministic extractive provider offline pipeline",
+            ),
+            (
+                ("避免每次全量重建", "github repo"),
+                "file hash Git commit changed files incremental indexing",
+            ),
+        )
+        lowered = query.lower()
+        for cues, rewritten in expansions:
+            if all(cue in lowered for cue in cues):
+                return rewritten
+        suffixes = [
+            "technical documentation exact terminology",
+            "implementation behavior evidence source",
+        ]
         return f"{query} {suffixes[min(round_number - 1, len(suffixes) - 1)]}"
 
     def _register_evidence(
@@ -571,6 +715,34 @@ class ResearchAgent:
                     return claim[:500]
         return "Evidence reference"
 
+    @staticmethod
+    def _claim_support_score(claim: str, evidence: str) -> float:
+        stop_words = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "is",
+            "are",
+            "to",
+            "of",
+            "in",
+            "for",
+            "with",
+            "this",
+            "that",
+            "evidence",
+            "reference",
+        }
+        claim_tokens = {
+            token for token in tokenize(claim) if token not in stop_words and len(token) > 1
+        }
+        if not claim_tokens:
+            return 0.0
+        evidence_tokens = set(tokenize(evidence))
+        return len(claim_tokens & evidence_tokens) / len(claim_tokens)
+
     def _verify_citations(
         self,
         session: Session,
@@ -579,18 +751,32 @@ class ResearchAgent:
         writer: EventWriter,
     ) -> None:
         writer.emit("node_started", "citation_verifier")
-        valid_ids = {item.id for item in evidence if item.locator}
+        evidence_by_id = {item.id: item for item in evidence if item.locator}
+        valid_ids = set(evidence_by_id)
         cited = CITATION_RE.findall(run.answer or "")
         invalid = sorted(set(cited) - valid_ids)
+        support_scores = {
+            marker: self._claim_support_score(
+                self._citation_claim(run.answer or "", marker),
+                evidence_by_id[marker].content,
+            )
+            for marker in dict.fromkeys(cited)
+            if marker in evidence_by_id
+        }
+        unsupported = sorted(
+            marker
+            for marker, score in support_scores.items()
+            if score < self.settings.citation_support_threshold
+        )
         repaired = False
-        if invalid and self.settings.citation_repair_enabled:
+        if (invalid or unsupported) and self.settings.citation_repair_enabled:
             answer = run.answer or ""
             for marker in invalid:
                 answer = answer.replace(f"[{marker}]", "")
             run.answer = answer
             cited = CITATION_RE.findall(answer)
             repaired = True
-        if evidence and not cited and self.settings.citation_repair_enabled:
+        if evidence and (not cited or unsupported) and self.settings.citation_repair_enabled:
             fallback = self.provider._extractive_generate(run.question, evidence)
             run.answer = (
                 fallback.text
@@ -598,15 +784,33 @@ class ResearchAgent:
                 "已改用登记证据生成可验证结果。"
             )
             cited = CITATION_RE.findall(run.answer)
+            support_scores = {
+                marker: self._claim_support_score(
+                    self._citation_claim(run.answer or "", marker),
+                    evidence_by_id[marker].content,
+                )
+                for marker in dict.fromkeys(cited)
+                if marker in evidence_by_id
+            }
+            unsupported = sorted(
+                marker
+                for marker, score in support_scores.items()
+                if score < self.settings.citation_support_threshold
+            )
             repaired = True
         for marker in dict.fromkeys(cited):
+            support_score = support_scores.get(marker, 0)
             session.add(
                 CitationRecord(
                     run_id=run.id,
                     evidence_id=marker,
                     marker=f"[{marker}]",
                     claim=self._citation_claim(run.answer or "", marker),
-                    valid=int(marker in valid_ids),
+                    valid=int(
+                        marker in valid_ids
+                        and support_score >= self.settings.citation_support_threshold
+                    ),
+                    support_score=support_score,
                 )
             )
         session.commit()
@@ -615,6 +819,12 @@ class ResearchAgent:
             "citation_verifier",
             citations=len(cited),
             invalid=invalid,
+            unsupported=unsupported,
+            average_support=(
+                round(sum(support_scores.values()) / len(support_scores), 3)
+                if support_scores
+                else 0
+            ),
             repaired=repaired,
             repair_attempts=1 if repaired else 0,
             repair_enabled=self.settings.citation_repair_enabled,

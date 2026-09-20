@@ -1,5 +1,9 @@
 # InfraResearch Agent 项目总结与简历素材
 
+> 本文保留 v0.2.0 的历史叙述与 20 题实验。当前 50 题指标、Hybrid Retrieval、
+> OCR/Web/增量索引和最新简历 Bullet 请以 [当前面试与简历指南](interview-guide.md)
+> 为准，不要混用两个版本的数字。
+
 > 文档基于仓库 `v0.2.0` 代码、架构文档、自动化测试与评测结果整理，重点从
 > **Agent** 和 **Agentic RAG** 两个角度说明项目。简历表述可以直接选用，但应按
 > 自己的实际职责将“独立完成”“负责”或“参与”替换准确。
@@ -607,8 +611,8 @@ provider 下：
 4. **如何保证可靠**：引用白名单、索引重建、明确降级、持久任务、租约和取消。
 5. **如何验证**：Naive/Agentic 使用同一语料和 Provider，比较质量、引用、检索、
    Token 与延迟。
-6. **当前边界**：单 Agent、规则式规划和评分；MCP 和可选 Reranker 已实现，
-   多 Agent、OCR 与 Web Search 尚未实现。
+6. **当前边界**：单 Agent、规则式规划和词项支持评分；MCP、可选 Reranker、OCR 与
+   Web Search 已实现，多 Agent / Supervisor 与 NLI 级事实判断尚未实现。
 
 ### 12.3 可重点回答的技术问题
 
