@@ -829,6 +829,14 @@ input[type="url"] {
   margin-top: 2px;
 }
 
+.timeline__item .timeline__detail {
+  display: block;
+  margin-top: 5px;
+  color: #78918c;
+  font: 8px/1.45 "DM Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
 .tool {
   display: flex;
   justify-content: space-between;

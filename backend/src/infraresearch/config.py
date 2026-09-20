@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     embedding_dimensions: int = 384
     embedding_cache_dir: Path = Path("~/.cache/fastembed")
     embedding_local_files_only: bool = False
+    reranker_backend: str = "identity"
+    reranker_model: str = "BAAI/bge-reranker-base"
+    reranker_cache_dir: Path = Path("~/.cache/fastembed")
+    reranker_local_files_only: bool = False
+    candidate_k: int = 20
+    evidence_k: int = 6
     chunk_size: int = 1200
     chunk_overlap: int = 120
     llm_base_url: str = "http://127.0.0.1:8001/v1"
@@ -31,6 +37,7 @@ class Settings(BaseSettings):
     max_repo_files: int = 2000
     max_agent_rewrites: int = 2
     token_budget: int = 6000
+    citation_repair_enabled: bool = True
     worker_poll_seconds: float = 0.25
     worker_heartbeat_seconds: float = 2
     worker_stale_seconds: float = 30
@@ -49,10 +56,15 @@ class Settings(BaseSettings):
     def resolved_embedding_cache_dir(self) -> Path:
         return self.embedding_cache_dir.expanduser()
 
+    @property
+    def resolved_reranker_cache_dir(self) -> Path:
+        return self.reranker_cache_dir.expanduser()
+
     def ensure_directories(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.repos_path.mkdir(parents=True, exist_ok=True)
         self.resolved_embedding_cache_dir.mkdir(parents=True, exist_ok=True)
+        self.resolved_reranker_cache_dir.mkdir(parents=True, exist_ok=True)
 
 
 @lru_cache

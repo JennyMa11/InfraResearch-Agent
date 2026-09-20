@@ -13,10 +13,13 @@
 
 ## v0.2.0
 
-- 把 Retriever/Tool 接口封装为 MCP tools/resources。
-- 可选 reranker、OCR 与 Web Search。
-- 多 Agent research supervisor 与并行子任务。
-- 用户认证、配额和数据源权限。
+已完成：
+
+- Retriever/Tool Registry 与 MCP tools/resources；
+- 可选 FastEmbed Cross-Encoder Reranker；
+- 可复现消融评测与可解释 Agent 决策时间线。
+
+延后：OCR、Web Search、多 Agent supervisor、用户认证、配额和数据源权限。
 
 ## 更长期
 

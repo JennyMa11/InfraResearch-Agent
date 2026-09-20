@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, model_validator
 
 
 class SourceOut(BaseModel):
@@ -40,6 +40,15 @@ class ResearchRequest(BaseModel):
     question: str = Field(min_length=2, max_length=4000)
     mode: Literal["naive", "agentic"] = "agentic"
     top_k: int = Field(default=6, ge=1, le=20)
+    candidate_k: int | None = Field(default=None, ge=1, le=100)
+    evidence_k: int | None = Field(default=None, ge=1, le=20)
+
+    @model_validator(mode="after")
+    def validate_retrieval_limits(self) -> ResearchRequest:
+        evidence_k = self.evidence_k or self.top_k
+        if self.candidate_k is not None and self.candidate_k < evidence_k:
+            raise ValueError("candidate_k must be greater than or equal to evidence_k")
+        return self
 
 
 class SubQuestion(BaseModel):
@@ -59,6 +68,8 @@ class Evidence(BaseModel):
     content: str
     locator: str
     score: float
+    retrieval_score: float
+    rerank_score: float | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -101,6 +112,11 @@ class RunMetrics(BaseModel):
     kv_cache_usage: float | None = None
     provider: str = "unknown"
     vector_backend: str = "unknown"
+    reranker: str = "identity"
+    reranker_status: str = "disabled"
+    reranker_latency_ms: float = 0
+    candidate_k: int = 0
+    evidence_k: int = 0
 
 
 class ResearchRunOut(BaseModel):

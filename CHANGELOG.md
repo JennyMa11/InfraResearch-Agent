@@ -3,6 +3,23 @@
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and
 Semantic Versioning.
 
+## [0.2.0] - 2026-09-20
+
+### Added
+
+- Two-stage candidate retrieval with configurable Identity or FastEmbed cross-encoder reranking.
+- Separate retrieval/rerank evidence scores, reranker latency/status metrics and SQLite migration.
+- Typed Tool Registry with JSON Schema validation, bounded retries, timeouts and cancellation.
+- MCP 2.x server exposing document, code and Issue search tools plus source/chunk/evidence resources.
+- Structured Tool, Observation, Rerank, Grade and Decision trace events in the React timeline.
+- Reproducible, non-overwriting ablation reports with Git, environment, revision and data hashes.
+
+### Changed
+
+- Split candidate retrieval size from final evidence size.
+- Define Citation Recall as required-evidence coverage from cited evidence; retain evidence citation
+  coverage as a separate machine-readable metric.
+
 ## [0.1.1] - 2026-07-29
 
 ### Added

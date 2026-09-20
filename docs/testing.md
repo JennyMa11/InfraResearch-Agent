@@ -9,6 +9,8 @@ make build
 后端单元测试覆盖 Markdown/代码分块、稳定行号、Retriever、GitHub URL 限制、
 grader 重写上限、Naive 单轮检索、引用修复、token 预算和百分位。集成行为通过
 临时 SQLite、固定 provider 与本地语料运行，不需要网络或 GPU。
+测试还覆盖 Reranker 降级、Tool Schema/重试、SQLite 分数迁移，以及使用官方
+MCP Client 的工具发现、调用与 Resource 读取。
 
 worker 阶段测试覆盖多 worker 原子 claim、持久任务单次执行、旧进程内任务接管、
 过期心跳租约安全重排，以及运行中 cooperative cancellation。API 集成测试还覆盖

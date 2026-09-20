@@ -13,6 +13,9 @@
 | WSL 看不到 GPU | 按 [gpu-wsl.md](gpu-wsl.md) 更新驱动与 WSL |
 | SSE 到最后才出现 | 在反向代理关闭 buffering，保留 `X-Accel-Buffering: no` |
 | 报告没有引用 | 这是验证失败信号；补充资料，不要手工伪造 marker |
+| Reranker 首次运行很慢 | FastEmbed 首次需下载约1 GB 模型；预先缓存后设置 `RERANKER_LOCAL_FILES_ONLY=true`，或用 `RERANKER_BACKEND=identity` 关闭精排 |
+| Reranker 显示 degraded | 检查完成运行的 `metrics.reranker_status` 和 `rerank_completed.error`；系统已回退原始召回顺序 |
+| MCP Client 无法发现工具 | 从项目根目录运行 `make mcp`，确认 client 使用 stdio 且命令的工作目录正确；详见 [mcp.md](mcp.md) |
 | API 正常但健康信息与研究指标不同 | 健康接口反映配置；以完成运行的 `metrics.vector_backend/provider` 确认实际执行路径 |
 
 任务仍异常时，先检查最近 job：

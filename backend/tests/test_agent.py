@@ -89,6 +89,16 @@ def test_agentic_run_is_bounded_and_preserves_trace(session, tmp_path) -> None:
     assert len(rewrites) <= 2
     assert events[0].event_type == "run_started"
     assert events[-1].event_type == "run_completed"
+    event_types = [event.event_type for event in events]
+    assert "tool_started" in event_types
+    assert event_types.count("tool_started") == event_types.count("observation_created")
+    assert "rerank_completed" in event_types
+    assert "decision_made" in event_types
+    for rewrite in rewrites:
+        data = json.loads(rewrite.data_json)
+        assert data["previous_queries"]
+        assert data["queries"]
+        assert data["reason"]
 
 
 def test_naive_run_only_retrieves_once(session, tmp_path) -> None:
@@ -140,6 +150,57 @@ def test_missing_citations_fall_back_to_grounded_report(session, tmp_path) -> No
     assert len(run.citations) == 1
     assert run.citations[0].valid == 1
     assert run.citations[0].claim != "Referenced claim"
+
+
+def test_citation_repair_can_be_disabled_for_ablation(session, tmp_path) -> None:
+    seed(session)
+    settings = Settings(
+        data_dir=tmp_path,
+        vector_backend="sqlite",
+        citation_repair_enabled=False,
+    )
+    provider = FixedProvider(settings, "Unsupported marker [S99].")
+    run = ResearchRun(question="Explain prefix caching", mode="agentic")
+    session.add(run)
+    session.commit()
+
+    make_agent(tmp_path, provider).execute(session, run.id)
+    session.refresh(run)
+
+    assert "[S99]" in (run.answer or "")
+    assert len(run.citations) == 1
+    assert run.citations[0].valid == 0
+    verifier = [
+        json.loads(event.data_json)
+        for event in run.events
+        if event.event_type == "node_completed" and event.node == "citation_verifier"
+    ][0]
+    assert verifier["repair_enabled"] is False
+    assert verifier["repair_attempts"] == 0
+
+
+def test_citation_repair_cannot_ground_answer_without_evidence(session, tmp_path) -> None:
+    settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
+    provider = FixedProvider(settings, "Unsupported marker [S99].")
+    run = ResearchRun(question="Explain evidence that is not indexed", mode="agentic")
+    session.add(run)
+    session.commit()
+
+    make_agent(tmp_path, provider).execute(session, run.id)
+    session.refresh(run)
+
+    assert run.status == Status.COMPLETED
+    assert "[S99]" not in (run.answer or "")
+    assert len(run.evidence) == 0
+    assert len(run.citations) == 0
+    verifier = [
+        json.loads(event.data_json)
+        for event in run.events
+        if event.event_type == "node_completed" and event.node == "citation_verifier"
+    ][0]
+    assert verifier["invalid"] == ["S99"]
+    assert verifier["repaired"] is True
+    assert verifier["citations"] == 0
 
 
 def test_token_budget_truncates_generation_context(session, tmp_path) -> None:
@@ -209,3 +270,38 @@ def test_duplicate_chunk_content_is_registered_once(session, tmp_path) -> None:
     ).all()
     assert len(provider.seen_evidence) == 1
     assert len(records) == 1
+
+
+def test_reranker_failure_degrades_to_retrieval_order(session, tmp_path) -> None:
+    seed(session)
+    settings = Settings(data_dir=tmp_path, vector_backend="sqlite")
+    provider = FixedProvider(settings)
+
+    class BrokenReranker:
+        name = "broken"
+
+        def rerank(self, query, hits):
+            raise RuntimeError("reranker unavailable")
+
+    run = ResearchRun(question="How are prefix cache blocks reused?", mode="naive")
+    session.add(run)
+    session.commit()
+    agent = ResearchAgent(
+        settings,
+        VectorIndex(settings),
+        provider,
+        reranker=BrokenReranker(),
+    )
+
+    agent.execute(session, run.id)
+    session.refresh(run)
+
+    assert run.status == Status.COMPLETED
+    metrics = json.loads(run.metrics_json)
+    assert metrics["reranker"] == "broken"
+    assert metrics["reranker_status"] == "degraded"
+    event = next(item for item in run.events if item.event_type == "rerank_completed")
+    assert json.loads(event.data_json)["error"] == "reranker unavailable"
+    record = session.scalar(select(EvidenceRecord).where(EvidenceRecord.run_id == run.id))
+    assert record.retrieval_score == record.score
+    assert record.rerank_score is None

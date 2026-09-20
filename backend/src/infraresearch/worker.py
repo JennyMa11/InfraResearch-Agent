@@ -121,6 +121,16 @@ class Worker:
                             session,
                             job.target_id,
                             top_k=int(payload.get("top_k", 6)),
+                            candidate_k=(
+                                int(payload["candidate_k"])
+                                if payload.get("candidate_k") is not None
+                                else None
+                            ),
+                            evidence_k=(
+                                int(payload["evidence_k"])
+                                if payload.get("evidence_k") is not None
+                                else None
+                            ),
                             cancel_check=control.checkpoint,
                         )
                     elif job.kind == "source_cleanup":

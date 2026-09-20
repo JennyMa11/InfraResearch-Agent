@@ -49,6 +49,8 @@ export interface Evidence {
   content: string;
   locator: string;
   score: number;
+  retrieval_score: number;
+  rerank_score: number | null;
   metadata: Record<string, unknown>;
 }
 
@@ -83,6 +85,11 @@ export interface RunMetrics {
   kv_cache_usage: number | null;
   provider: string;
   vector_backend: string;
+  reranker: string;
+  reranker_status: string;
+  reranker_latency_ms: number;
+  candidate_k: number;
+  evidence_k: number;
 }
 
 export interface ResearchRun {

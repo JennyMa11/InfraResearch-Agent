@@ -1,5 +1,6 @@
 import httpx
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -7,7 +8,17 @@ from infraresearch.config import Settings
 from infraresearch.database import get_db
 from infraresearch.main import app
 from infraresearch.models import Base
+from infraresearch.schemas import ResearchRequest
 from infraresearch.worker import Worker
+
+
+def test_research_request_rejects_candidate_limit_below_evidence_limit() -> None:
+    with pytest.raises(ValidationError, match="candidate_k"):
+        ResearchRequest(
+            question="Explain prefix caching",
+            candidate_k=3,
+            evidence_k=6,
+        )
 
 
 @pytest.mark.asyncio
@@ -20,7 +31,10 @@ async def test_health_and_validation_expose_clear_status(monkeypatch, tmp_path) 
         assert response.status_code == 200
         assert response.json()["vector_backend"] == "sqlite_lexical"
         assert response.json()["embedding_backend"] == "none"
-        assert response.json()["version"] == "0.1.1"
+        assert response.json()["reranker_backend"] == "identity"
+        assert response.json()["candidate_k"] == 20
+        assert response.json()["evidence_k"] == 6
+        assert response.json()["version"] == "0.2.0"
         invalid = await client.post(
             "/api/v1/sources/files",
             files={"file": ("weight.safetensors", b"binary", "application/octet-stream")},

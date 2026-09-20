@@ -296,15 +296,76 @@ function EventLabel({ event }: { event: TraceEvent }) {
     node_started: "节点进入",
     node_completed: "节点完成",
     plan_created: "计划生成",
+    tool_started: "工具调用",
     tool_completed: "工具返回",
+    observation_created: "检索观察",
+    rerank_completed: "候选精排",
     evidence_added: "证据登记",
     evidence_graded: "证据评分",
+    decision_made: "Agent 决策",
     query_rewritten: "查询重写",
     run_completed: "运行完成",
     run_failed: "运行失败",
     run_cancelled: "运行取消",
   };
   return <>{labels[event.event_type] ?? event.event_type}</>;
+}
+
+function EventDetail({ event }: { event: TraceEvent }) {
+  const data = event.data;
+  if (event.event_type === "tool_started") {
+    return (
+      <small className="timeline__detail">
+        {`${String(data.tool)} · ${String(data.query)} · top_k=${String(data.top_k)}`}
+      </small>
+    );
+  }
+  if (event.event_type === "observation_created") {
+    const score = typeof data.top_score === "number" ? data.top_score.toFixed(3) : "N/A";
+    return (
+      <small className="timeline__detail">
+        {`${String(data.results)} results · top=${score} · ${String(data.status)}`}
+      </small>
+    );
+  }
+  if (event.event_type === "evidence_graded") {
+    return (
+      <small className="timeline__detail">
+        {`coverage=${String(data.coverage)} · relevance=${String(data.relevance)} · diversity=${String(data.diversity)}`}
+      </small>
+    );
+  }
+  if (event.event_type === "decision_made") {
+    return (
+      <small className="timeline__detail">
+        {`${String(data.action)} · ${String(data.reason)}`}
+      </small>
+    );
+  }
+  if (event.event_type === "query_rewritten") {
+    const previous = Array.isArray(data.previous_queries)
+      ? data.previous_queries.join(" | ")
+      : "";
+    const next = Array.isArray(data.queries) ? data.queries.join(" | ") : "";
+    return <small className="timeline__detail">{`${previous} → ${next}`}</small>;
+  }
+  if (event.event_type === "rerank_completed") {
+    const movements = Array.isArray(data.ranking)
+      ? data.ranking
+          .slice(0, 3)
+          .map((item) => {
+            const rank = item as Record<string, unknown>;
+            return `${String(rank.locator)} #${String(rank.retrieval_rank)}→#${String(rank.rerank_rank)}`;
+          })
+          .join(" · ")
+      : "";
+    return (
+      <small className="timeline__detail">
+        {`${String(data.candidates)} candidates · ${String(data.status)} · ${String(data.reranker)}${movements ? ` · ${movements}` : ""}`}
+      </small>
+    );
+  }
+  return null;
 }
 
 export function Timeline({ events }: { events: TraceEvent[] }) {
@@ -345,6 +406,7 @@ export function Timeline({ events }: { events: TraceEvent[] }) {
                 <EventLabel event={event} />
               </strong>
               <span>{event.node ?? `#${event.sequence}`}</span>
+              <EventDetail event={event} />
             </div>
             {typeof event.data.duration_ms === "number" && (
               <time>{event.data.duration_ms.toFixed(0)} ms</time>
@@ -433,7 +495,10 @@ export function EvidenceDrawer({
       <div className="scorebar">
         <span style={{ width: `${Math.max(4, evidence.score * 100)}%` }} />
       </div>
-      <small>检索分数 {evidence.score.toFixed(3)}</small>
+      <small>
+        召回 {evidence.retrieval_score.toFixed(3)} · 精排{" "}
+        {evidence.rerank_score == null ? "未启用" : evidence.rerank_score.toFixed(3)}
+      </small>
       <pre>{evidence.content}</pre>
     </aside>
   );
@@ -449,6 +514,8 @@ export function Metrics({ run }: { run: ResearchRun }) {
     ["Agent 步数", String(metrics.agent_steps)],
     ["Provider", metrics.provider],
     ["向量后端", metrics.vector_backend],
+    ["Reranker", `${metrics.reranker} (${metrics.reranker_status})`],
+    ["Rerank耗时", `${metrics.reranker_latency_ms.toFixed(1)} ms`],
     ["KV Cache", metrics.kv_cache_usage == null ? "N/A" : `${metrics.kv_cache_usage}%`],
   ];
   return (

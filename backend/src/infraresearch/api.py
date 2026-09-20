@@ -88,7 +88,7 @@ def _ingestion_out(item: Ingestion) -> IngestionOut:
 
 
 @router.get("/health")
-async def health() -> dict[str, str]:
+async def health() -> dict[str, str | int]:
     settings = get_settings()
     return {
         "status": "ok",
@@ -100,6 +100,10 @@ async def health() -> dict[str, str]:
             settings.embedding_backend if settings.vector_backend == "qdrant" else "none"
         ),
         "embedding_model": settings.embedding_model,
+        "reranker_backend": settings.reranker_backend,
+        "reranker_model": settings.reranker_model,
+        "candidate_k": settings.candidate_k,
+        "evidence_k": settings.evidence_k,
     }
 
 
@@ -367,7 +371,16 @@ async def create_research(
     run = ResearchRun(question=payload.question, mode=payload.mode)
     session.add(run)
     session.flush()
-    enqueue_job(session, "research", run.id, {"top_k": payload.top_k})
+    enqueue_job(
+        session,
+        "research",
+        run.id,
+        {
+            "top_k": payload.top_k,
+            "candidate_k": payload.candidate_k,
+            "evidence_k": payload.evidence_k,
+        },
+    )
     session.commit()
     return _run_out(session, run)
 
@@ -400,6 +413,8 @@ def _run_out(session: Session, run: ResearchRun) -> ResearchRunOut:
                 content=item.content,
                 locator=item.locator,
                 score=item.score,
+                retrieval_score=item.retrieval_score,
+                rerank_score=item.rerank_score,
                 metadata=json.loads(item.metadata_json),
             )
             for item in evidence_records
@@ -501,7 +516,9 @@ async def retry_research(
     run = ResearchRun(question=previous.question, mode=previous.mode)
     session.add(run)
     session.flush()
-    enqueue_job(session, "research", run.id, {"top_k": 6})
+    previous_job = _job_for_target(session, previous.id)
+    payload = json.loads(previous_job.payload_json) if previous_job else {"top_k": 6}
+    enqueue_job(session, "research", run.id, payload)
     session.commit()
     return _run_out(session, run)
 

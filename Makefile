@@ -1,4 +1,4 @@
-.PHONY: install dev backend worker frontend test check build evaluate evaluate-gpu preflight setup-vllm start-vllm verify verify-gpu verify-online
+.PHONY: install dev backend worker frontend mcp test check build evaluate evaluate-reranker evaluate-gpu preflight setup-vllm start-vllm verify verify-gpu verify-online
 
 export UV_CACHE_DIR ?= /tmp/infraresearch-uv-cache
 
@@ -18,6 +18,9 @@ worker:
 frontend:
 	npm --prefix frontend run dev
 
+mcp:
+	uv run --project backend python -m infraresearch.mcp_server
+
 test:
 	uv run --project backend pytest backend/tests
 	npm --prefix frontend test -- --run
@@ -31,6 +34,11 @@ build:
 
 evaluate:
 	uv run --project backend python scripts/evaluate.py
+
+evaluate-reranker:
+	uv run --project backend python scripts/evaluate.py \
+		--reranker-backend fastembed \
+		--reranker-model BAAI/bge-reranker-base
 
 evaluate-gpu:
 	uv run --project backend python scripts/evaluate.py \

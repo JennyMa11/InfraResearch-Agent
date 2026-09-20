@@ -131,8 +131,14 @@ def create_encoder(settings: Settings) -> TextEncoder:
 @dataclass(slots=True)
 class SearchHit:
     chunk: Chunk
-    score: float
+    retrieval_score: float
     tool: str = "semantic_document_search"
+    query: str = ""
+    rerank_score: float | None = None
+
+    @property
+    def score(self) -> float:
+        return self.rerank_score if self.rerank_score is not None else self.retrieval_score
 
 
 class VectorIndex:
@@ -311,7 +317,11 @@ class VectorIndex:
             matched = sum(content_lower.count(token) for token in query_tokens)
             if matched:
                 hits.append(
-                    SearchHit(chunk=chunk, score=min(1.0, matched / 5), tool="code_keyword_search")
+                    SearchHit(
+                        chunk=chunk,
+                        retrieval_score=min(1.0, matched / 5),
+                        tool="code_keyword_search",
+                    )
                 )
         return sorted(hits, key=lambda hit: hit.score, reverse=True)[:top_k]
 

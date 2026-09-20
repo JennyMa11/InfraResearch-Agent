@@ -315,7 +315,7 @@ export default function App() {
           <span className="brand__mark">IR</span>
           <span>
             <strong>InfraResearch</strong>
-            <small>Agent v0.1.1</small>
+            <small>Agent v0.2.0</small>
           </span>
         </a>
         <div className="system-state">

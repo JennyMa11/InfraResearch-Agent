@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-09-20T03:41:11.979068+00:00",
+  "version": "0.1.1",
+  "git": {
+    "commit": "03290817f319f0b1c2024e600efe679a0b1586df",
+    "short_commit": "0329081",
+    "dirty": true
+  },
+  "environment": {
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "python": "3.12.3"
+  },
+  "dataset": {
+    "path": "/home/kylin/RAG/evals/questions.json",
+    "sha256": "417a721e1b1a699104c1c466f0ceab0f28ea03b1aec588a064a1078f221dfa29",
+    "questions": 20
+  },
+  "corpus": {
+    "path": "/home/kylin/RAG/evals/corpus.md",
+    "sha256": "efd359a2a547b8c579c0ef1ebc0154a9537613675af0c40c550f311874af80e3",
+    "chunks": 8
+  },
+  "configuration": {
+    "seed": 17,
+    "provider": "extractive",
+    "llm_model": "Qwen/Qwen3-0.6B",
+    "llm_revision": "unrecorded",
+    "vector_backend": "sqlite",
+    "embedding_backend": "hash",
+    "embedding_revision": "unrecorded",
+    "reranker_backend": "identity",
+    "reranker_model": "BAAI/bge-reranker-base",
+    "reranker_revision": "unrecorded",
+    "reranker_local_files_only": false,
+    "warmup_reranker": true,
+    "candidate_k": 20,
+    "evidence_k": 6,
+    "max_agent_rewrites": 2,
+    "token_budget": 6000,
+    "citation_repair": true,
+    "python_hash_seed": "unset"
+  },
+  "actual": {
+    "vector_backend": "sqlite_lexical",
+    "embedding_backend": "none",
+    "reranker": "identity",
+    "reranker_warmup_ms": 0.0
+  },
+  "naive": {
+    "questions": 20,
+    "completed": 20,
+    "correctness": 0.9010534231364254,
+    "citation_precision": 1.0,
+    "citation_recall": 0.975,
+    "evidence_citation_coverage": 0.8583333333333334,
+    "recall_at_k": 0.975,
+    "tool_accuracy": 1.0,
+    "average_steps": 5,
+    "average_tool_calls": 1,
+    "average_retrieval_rounds": 1,
+    "average_tokens": 153.9,
+    "average_reranker_latency_ms": 0.0037885000438109273,
+    "p50_latency_ms": 38.40425950011195,
+    "p95_latency_ms": 43.59753600010663
+  },
+  "agentic": {
+    "questions": 20,
+    "completed": 20,
+    "correctness": 0.9010534231364254,
+    "citation_precision": 1.0,
+    "citation_recall": 0.975,
+    "evidence_citation_coverage": 0.8583333333333334,
+    "recall_at_k": 0.975,
+    "tool_accuracy": 1.0,
+    "average_steps": 6.2,
+    "average_tool_calls": 3.25,
+    "average_retrieval_rounds": 1.1,
+    "average_tokens": 153.9,
+    "average_reranker_latency_ms": 0.003875949983012106,
+    "p50_latency_ms": 46.14696750013536,
+    "p95_latency_ms": 51.44868299976224
+  }
+}

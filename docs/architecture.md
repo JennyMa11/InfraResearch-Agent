@@ -12,13 +12,16 @@ flowchart LR
     AGENT --> ROUTER[Router]
     ROUTER --> PLAN[Planner]
     PLAN --> RET[Retriever / Tool Selector]
-    RET --> GRADE[Evidence Grader]
+    RET --> RERANK[Optional Cross-Encoder Reranker]
+    RERANK --> GRADE[Evidence Grader]
     GRADE -->|不足，最多 2 次| RET
     GRADE --> GEN[Generator]
     GEN --> VERIFY[Citation Verifier]
     VERIFY -->|修复最多 1 次| GEN
     AGENT --> LLM[OpenAI-compatible Qwen]
     LLM -.不可用.-> FALLBACK[Extractive provider]
+    MCP[MCP Client] --> MCPS[MCP Server / Tool Registry]
+    MCPS --> RET
 ```
 
 SQLite 是任务、证据、引用和轨迹的事实来源。Qdrant 只保存 chunk ID、source ID 和
@@ -29,6 +32,16 @@ SQLite 是任务、证据、引用和轨迹的事实来源。Qdrant 只保存 ch
 来源删除采用软删除：API 会立即把来源排除在检索之外并创建
 `source_cleanup` job，worker 随后删除 Qdrant point；原始上传/仓库副本会清理。
 SQLite 中的来源和 chunk 快照继续保留，使既有研究报告的证据抽屉仍可打开。
+
+文档、代码和 Issue 检索通过同一个 Tool Registry 执行，统一进行 Pydantic 参数
+校验、结果上限、有限重试、超时边界、取消检查和结构化错误记录。MCP Server 复用
+该 Registry，并额外暴露 source、chunk 和历史 evidence resources；本地 Agent
+无需绕行 MCP 网络层。
+
+候选检索和最终 Evidence 数量分别由 `candidate_k` 与 `evidence_k` 控制。Identity
+Reranker 保持原始召回分数；FastEmbed Cross-Encoder 同时保留
+`retrieval_score` 和 `rerank_score`。精排失败时当次运行回退原始排序并记录
+`reranker_status=degraded`。
 
 Agent 状态包含问题、计划、检索轮次、证据、预算、答案和验证结果。每个节点边界
 都会先持久化事件再继续，以便失败后仍能查看部分轨迹。v0.1.x 是单 Agent；

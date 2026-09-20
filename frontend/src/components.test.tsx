@@ -249,6 +249,8 @@ describe("citations", () => {
           content: "Prefix cache content",
           locator: "repo@sha/docs/cache.md#L1-L10",
           score: 0.9,
+          retrieval_score: 0.8,
+          rerank_score: 0.9,
           metadata: {},
         }}
         onClose={() => undefined}

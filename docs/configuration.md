@@ -12,6 +12,12 @@
 | `EMBEDDING_DIMENSIONS` | `384` | 向量维度 |
 | `EMBEDDING_CACHE_DIR` | `~/.cache/fastembed` | ONNX 模型缓存目录 |
 | `EMBEDDING_LOCAL_FILES_ONLY` | `false` | `true` 时禁止模型联网下载 |
+| `RERANKER_BACKEND` | `identity` | `identity` 关闭精排，`fastembed` 启用 ONNX Cross-Encoder |
+| `RERANKER_MODEL` | `BAAI/bge-reranker-base` | FastEmbed Cross-Encoder 模型 |
+| `RERANKER_CACHE_DIR` | `~/.cache/fastembed` | Reranker 模型缓存目录 |
+| `RERANKER_LOCAL_FILES_ONLY` | `false` | `true` 时只使用已缓存 Reranker |
+| `CANDIDATE_K` | `20` | 每个检索工具的候选召回上限 |
+| `EVIDENCE_K` | `6` | 精排后进入 Evidence 的数量 |
 | `CHUNK_SIZE` | `1200` | 目标字符数 |
 | `CHUNK_OVERLAP` | `120` | 重叠字符数 |
 | `LLM_BASE_URL` | `http://127.0.0.1:8001/v1` | OpenAI-compatible 根路径 |
@@ -24,8 +30,11 @@
 | `MAX_REPO_FILES` | `2000` | 仓库可索引文件上限 |
 | `MAX_AGENT_REWRITES` | `2` | 查询重写上限 |
 | `TOKEN_BUDGET` | `6000` | 单次生成总预算近似值 |
+| `CITATION_REPAIR_ENABLED` | `true` | 是否清理无效引用并对缺失引用执行一次修复 |
 
 `GITHUB_TOKEN` 不带 InfraResearch 前缀，用于公开 Issue REST API。不要提交真实
 `.env`。修改 Embedding 后端、模型、维度或 chunk 配置会强制重建本地向量
-collection。`GET /api/v1/health` 显示 API 读取到的配置；worker 是否发生词法或
-extractive 降级，应以完成运行的 `metrics.vector_backend/provider` 为准。
+collection。首次启用 FastEmbed Reranker 会下载约 1GB 的模型；生产或离线演示
+应预先缓存并记录模型 revision。`GET /api/v1/health` 显示 API 读取到的配置；
+worker 是否发生词法、Reranker 或 extractive 降级，应以完成运行的
+`metrics.vector_backend/reranker_status/provider` 为准。

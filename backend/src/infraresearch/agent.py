@@ -23,8 +23,10 @@ from .models import (
     TraceEvent,
 )
 from .provider import LLMProvider
+from .reranking import IdentityReranker, Reranker, create_reranker
 from .retrieval import SearchHit, VectorIndex, tokenize
 from .schemas import Evidence, RunMetrics
+from .tooling import ToolRegistry, create_tool_registry
 
 CITATION_RE = re.compile(r"\[(S\d+)]")
 
@@ -53,25 +55,46 @@ class EventWriter:
 
 
 class ResearchAgent:
-    def __init__(self, settings: Settings, index: VectorIndex, provider: LLMProvider):
+    def __init__(
+        self,
+        settings: Settings,
+        index: VectorIndex,
+        provider: LLMProvider,
+        reranker: Reranker | None = None,
+        tool_registry: ToolRegistry | None = None,
+    ):
         self.settings = settings
         self.index = index
         self.provider = provider
+        self.reranker = reranker or create_reranker(settings)
+        self.tool_registry = tool_registry or create_tool_registry(index)
+        self._reranker_error: str | None = None
 
     def execute(
         self,
         session: Session,
         run_id: str,
         *,
-        top_k: int = 6,
+        top_k: int | None = None,
+        candidate_k: int | None = None,
+        evidence_k: int | None = None,
         cancel_check: Callable[[], None] | None = None,
     ) -> None:
         run = session.get(ResearchRun, run_id)
         if not run:
             return
+        self._reranker_error = None
         writer = EventWriter(session, run_id)
         started = time.perf_counter()
         metrics = RunMetrics(vector_backend=self.index.backend)
+        evidence_limit = evidence_k or top_k or self.settings.evidence_k
+        candidate_limit = max(candidate_k or self.settings.candidate_k, evidence_limit)
+        metrics.candidate_k = candidate_limit
+        metrics.evidence_k = evidence_limit
+        metrics.reranker = self.reranker.name
+        metrics.reranker_status = (
+            "disabled" if isinstance(self.reranker, IdentityReranker) else "ready"
+        )
         run.status = Status.RUNNING
         session.commit()
         self._checkpoint(cancel_check)
@@ -98,6 +121,7 @@ class ResearchAgent:
                 metrics.agent_steps += 1
 
                 all_hits: dict[str, SearchHit] = {}
+                ranked_hits: list[SearchHit] = []
                 queries = (
                     [run.question]
                     if run.mode == "naive"
@@ -118,7 +142,7 @@ class ResearchAgent:
                         run,
                         queries,
                         plan,
-                        top_k,
+                        candidate_limit,
                         writer,
                         agentic=run.mode == "agentic",
                         cancel_check=cancel_check,
@@ -126,8 +150,14 @@ class ResearchAgent:
                     metrics.tool_calls += len(queries if run.mode == "naive" else queries)
                     for hit in round_hits:
                         existing = all_hits.get(hit.chunk.id)
-                        if not existing or existing.score < hit.score:
+                        if not existing or existing.retrieval_score < hit.retrieval_score:
                             all_hits[hit.chunk.id] = hit
+                    ranked_hits = self._rerank(
+                        run.question,
+                        list(all_hits.values()),
+                        writer,
+                        metrics,
+                    )
                     writer.emit(
                         "node_completed",
                         "retriever",
@@ -137,24 +167,39 @@ class ResearchAgent:
                     metrics.agent_steps += 1
                     if run.mode == "naive":
                         break
-                    sufficient, detail = self._grade(run.question, list(all_hits.values()))
+                    sufficient, detail = self._grade(
+                        run.question, ranked_hits[:evidence_limit]
+                    )
                     writer.emit("evidence_graded", "evidence_grader", **detail)
                     metrics.agent_steps += 1
+                    writer.emit(
+                        "decision_made",
+                        "evidence_grader",
+                        action="generate" if sufficient else "retrieve_again",
+                        reason=self._decision_reason(detail),
+                        round=round_number + 1,
+                    )
                     if sufficient:
                         break
                     if round_number < max_rounds - 1:
-                        queries = [self._rewrite_query(item, round_number + 1) for item in queries]
+                        previous_queries = queries
+                        queries = [
+                            self._rewrite_query(item, round_number + 1)
+                            for item in previous_queries
+                        ]
                         writer.emit(
                             "query_rewritten",
                             "evidence_grader",
                             round=round_number + 1,
+                            previous_queries=previous_queries,
                             queries=queries,
+                            reason=self._decision_reason(detail),
                         )
 
                 evidence = self._register_evidence(
                     session,
                     run_id,
-                    sorted(all_hits.values(), key=lambda item: item.score, reverse=True)[:top_k],
+                    ranked_hits[:evidence_limit],
                     writer,
                     cancel_check=cancel_check,
                 )
@@ -244,6 +289,65 @@ class ResearchAgent:
         normalized = question.strip().lower()
         return normalized in {"hi", "hello", "你好", "嗨", "谢谢", "thanks"}
 
+    def _rerank(
+        self,
+        query: str,
+        hits: list[SearchHit],
+        writer: EventWriter,
+        metrics: RunMetrics,
+    ) -> list[SearchHit]:
+        started = time.perf_counter()
+        status = "disabled" if isinstance(self.reranker, IdentityReranker) else "completed"
+        error = self._reranker_error
+        if error is not None:
+            ranked = IdentityReranker().rerank(query, hits)
+            status = "degraded"
+        else:
+            try:
+                ranked = self.reranker.rerank(query, hits)
+            except Exception as exc:
+                ranked = IdentityReranker().rerank(query, hits)
+                status = "degraded"
+                error = str(exc)[:500]
+                self._reranker_error = error
+        duration = (time.perf_counter() - started) * 1000
+        metrics.reranker_latency_ms += duration
+        metrics.reranker_status = status
+        retrieval_ranks = {
+            hit.chunk.id: rank
+            for rank, hit in enumerate(
+                sorted(hits, key=lambda item: item.retrieval_score, reverse=True),
+                start=1,
+            )
+        }
+        writer.emit(
+            "rerank_completed",
+            "reranker",
+            reranker=self.reranker.name,
+            status=status,
+            candidates=len(hits),
+            duration_ms=round(duration, 2),
+            error=error,
+            ranking=[
+                {
+                    "chunk_id": hit.chunk.id,
+                    "locator": hit.chunk.locator,
+                    "retrieval_rank": retrieval_ranks[hit.chunk.id],
+                    "rerank_rank": rerank_rank,
+                    "movement": retrieval_ranks[hit.chunk.id] - rerank_rank,
+                    "selected": rerank_rank <= metrics.evidence_k,
+                    "retrieval_score": round(hit.retrieval_score, 4),
+                    "rerank_score": (
+                        round(hit.rerank_score, 4)
+                        if hit.rerank_score is not None
+                        else None
+                    ),
+                }
+                for rerank_rank, hit in enumerate(ranked[:50], start=1)
+            ],
+        )
+        return ranked
+
     def _retrieve(
         self,
         session: Session,
@@ -271,47 +375,78 @@ class ResearchAgent:
                 tool_names.append("github_issue_search")
             for tool_name in tool_names:
                 self._checkpoint(cancel_check)
-                started = time.perf_counter()
-                status, error = Status.COMPLETED, None
-                try:
-                    if tool_name == "semantic_document_search":
-                        tool_hits = self.index.search(session, query, top_k)
-                    elif tool_name == "code_keyword_search":
-                        tool_hits = self.index.keyword_search(session, query, top_k)
-                    else:
-                        tool_hits = self.index.issue_search(session, query, top_k)
-                    hits.extend(tool_hits)
-                except Exception as exc:
-                    tool_hits = []
-                    status, error = Status.FAILED, str(exc)[:500]
-                duration = (time.perf_counter() - started) * 1000
+                writer.emit(
+                    "tool_started",
+                    "retriever",
+                    tool=tool_name,
+                    query=query,
+                    top_k=top_k,
+                )
+                result = self.tool_registry.execute(
+                    session,
+                    tool_name,
+                    {"query": query, "top_k": top_k},
+                    cancel_check=cancel_check,
+                )
+                tool_hits = result.hits
+                for hit in tool_hits:
+                    hit.query = query
+                hits.extend(tool_hits)
                 call = ToolCall(
                     run_id=run.id,
                     name=tool_name,
                     arguments_json=json.dumps({"query": query, "top_k": top_k}, ensure_ascii=False),
-                    result_summary=f"{len(tool_hits)} results",
-                    duration_ms=duration,
-                    status=status,
-                    error=error,
+                    result_summary=result.summary,
+                    duration_ms=result.duration_ms,
+                    status=result.status,
+                    error=result.error,
                 )
                 session.add(call)
                 session.commit()
+                sources = sorted({hit.chunk.source_id for hit in tool_hits})
+                top_score = max(
+                    (hit.retrieval_score for hit in tool_hits), default=None
+                )
                 writer.emit(
                     "tool_completed",
                     "retriever",
                     tool=tool_name,
                     call_id=call.id,
                     results=len(tool_hits),
-                    duration_ms=round(duration, 2),
-                    status=status,
-                    error=error,
+                    duration_ms=round(result.duration_ms, 2),
+                    status=result.status,
+                    error=result.error,
+                    attempts=result.attempts,
+                )
+                writer.emit(
+                    "observation_created",
+                    "retriever",
+                    tool=tool_name,
+                    call_id=call.id,
+                    query=query,
+                    results=len(tool_hits),
+                    sources=sources,
+                    top_score=round(top_score, 4) if top_score is not None else None,
+                    summary=call.result_summary,
+                    status=result.status,
+                    error=result.error,
                 )
         return hits
 
     @staticmethod
     def _grade(question: str, hits: list[SearchHit]) -> tuple[bool, dict[str, Any]]:
         if not hits:
-            return False, {"sufficient": False, "relevance": 0, "coverage": 0, "diversity": 0}
+            return False, {
+                "sufficient": False,
+                "relevance": 0,
+                "coverage": 0,
+                "diversity": 0,
+                "thresholds": {
+                    "coverage": 0.35,
+                    "relevance": 0.12,
+                    "strong_relevance": 0.55,
+                },
+            }
         query_tokens = set(tokenize(question))
         evidence_tokens = set()
         sources = set()
@@ -327,7 +462,24 @@ class ResearchAgent:
             "relevance": round(relevance, 3),
             "coverage": round(coverage, 3),
             "diversity": round(diversity, 3),
+            "thresholds": {
+                "coverage": 0.35,
+                "relevance": 0.12,
+                "strong_relevance": 0.55,
+            },
         }
+
+    @staticmethod
+    def _decision_reason(detail: dict[str, Any]) -> str:
+        if detail.get("sufficient"):
+            return (
+                "evidence met the configured coverage/relevance threshold; "
+                "continue to generation"
+            )
+        return (
+            f"evidence below threshold: coverage={detail.get('coverage', 0)}, "
+            f"relevance={detail.get('relevance', 0)}; rewrite and retrieve again"
+        )
 
     @staticmethod
     def _rewrite_query(query: str, round_number: int) -> str:
@@ -359,6 +511,8 @@ class ResearchAgent:
                 content=hit.chunk.content,
                 locator=hit.chunk.locator,
                 score=hit.score,
+                retrieval_score=hit.retrieval_score,
+                rerank_score=hit.rerank_score,
                 metadata=json.loads(hit.chunk.metadata_json),
             )
             session.add(
@@ -370,6 +524,8 @@ class ResearchAgent:
                     content=item.content,
                     locator=item.locator,
                     score=item.score,
+                    retrieval_score=item.retrieval_score,
+                    rerank_score=item.rerank_score,
                     metadata_json=json.dumps(item.metadata),
                 )
             )
@@ -380,6 +536,12 @@ class ResearchAgent:
                 evidence_id=evidence_id,
                 locator=item.locator,
                 score=round(item.score, 3),
+                retrieval_score=round(item.retrieval_score, 3),
+                rerank_score=(
+                    round(item.rerank_score, 3)
+                    if item.rerank_score is not None
+                    else None
+                ),
             )
         session.commit()
         return evidence
@@ -420,14 +582,15 @@ class ResearchAgent:
         valid_ids = {item.id for item in evidence if item.locator}
         cited = CITATION_RE.findall(run.answer or "")
         invalid = sorted(set(cited) - valid_ids)
-        repaired = bool(invalid)
-        if invalid:
+        repaired = False
+        if invalid and self.settings.citation_repair_enabled:
             answer = run.answer or ""
             for marker in invalid:
                 answer = answer.replace(f"[{marker}]", "")
             run.answer = answer
             cited = CITATION_RE.findall(answer)
-        if evidence and not cited:
+            repaired = True
+        if evidence and not cited and self.settings.citation_repair_enabled:
             fallback = self.provider._extractive_generate(run.question, evidence)
             run.answer = (
                 fallback.text
@@ -454,6 +617,7 @@ class ResearchAgent:
             invalid=invalid,
             repaired=repaired,
             repair_attempts=1 if repaired else 0,
+            repair_enabled=self.settings.citation_repair_enabled,
         )
 
 

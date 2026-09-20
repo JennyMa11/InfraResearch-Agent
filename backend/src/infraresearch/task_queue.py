@@ -140,7 +140,12 @@ def reconcile_orphaned_tasks(session: Session) -> int:
     for run in runs:
         if run.id in known_targets:
             continue
-        job = enqueue_job(session, "research", run.id, {"top_k": 6})
+        job = enqueue_job(
+            session,
+            "research",
+            run.id,
+            {"candidate_k": 20, "evidence_k": 6, "top_k": 6},
+        )
         if run.status == Status.CANCEL_REQUESTED:
             _cancel_target(session, job)
             job.status = Status.CANCELLED

@@ -151,6 +151,8 @@ class EvidenceRecord(Base):
     content: Mapped[str] = mapped_column(Text)
     locator: Mapped[str] = mapped_column(Text)
     score: Mapped[float] = mapped_column(Float)
+    retrieval_score: Mapped[float] = mapped_column(Float, default=0)
+    rerank_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     metadata_json: Mapped[str] = mapped_column(Text, default="{}")
 
 

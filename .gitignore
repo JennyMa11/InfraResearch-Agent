@@ -1,4 +1,5 @@
 .env
+CONVERSATION.md
 .venv/
 .venv-vllm/
 __pycache__/
@@ -15,6 +16,13 @@ data/*
 !data/.gitkeep
 evals/results/*
 !evals/results/.gitkeep
+!evals/results/pre-upgrade-baseline/
+!evals/results/pre-upgrade-baseline/**
+!evals/results/benchmarks/
+evals/results/benchmarks/*
+!evals/results/benchmarks/*-v2/
+!evals/results/benchmarks/*-v2/**
+!evals/results/benchmarks/summary.md
 *.db
 *.sqlite*
 .DS_Store

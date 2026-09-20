@@ -23,13 +23,24 @@
 研究请求：
 
 ```json
-{"question": "Prefix caching 如何工作？", "mode": "agentic", "top_k": 6}
+{
+  "question": "Prefix caching 如何工作？",
+  "mode": "agentic",
+  "candidate_k": 20,
+  "evidence_k": 6
+}
 ```
+
+`candidate_k` 控制各工具的候选召回数，`evidence_k` 控制精排后登记的 Evidence
+数量。旧客户端仍可发送 `top_k`，它作为 `evidence_k` 的兼容默认值；
+`candidate_k` 不得小于最终 Evidence 数量。
 
 列表响应统一为 `{"items":[],"page":1,"page_size":20,"total":0,"pages":0}`。
 `page_size` 范围为 1–100；来源支持 `status/kind`，研究支持 `status/mode`。
 
-SSE 事件按递增 `sequence` 发送。终止事件为 `run_completed`、`run_failed` 或
+SSE 事件按递增 `sequence` 发送。Agent 研究路径包含 `plan_created`、
+`tool_started`、`observation_created`、`rerank_completed`、`evidence_graded`、
+`decision_made`、`query_rewritten` 和引用验证节点。终止事件为 `run_completed`、`run_failed` 或
 `run_cancelled`；
 反向代理必须禁用响应缓冲。
 
